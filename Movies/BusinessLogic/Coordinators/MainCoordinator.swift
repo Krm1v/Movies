@@ -32,7 +32,14 @@ final class MainCoordinator: Coordinator {
 // MARK: - Private extension
 private extension MainCoordinator {
     func startMoviesListScene() {
-        let controller = MoviesListSceneViewController()
-        setRoot(controller)
+        let module = MoviesListSceneBuilder.build(container: container)
+        module.transitionPublisher
+            .sink { [unowned self] transition in
+                switch transition {
+                case .openDetail: debugPrint("openDetail")
+                }
+            }
+            .store(in: &cancellables)
+        setRoot([module.viewController])
     }
 }

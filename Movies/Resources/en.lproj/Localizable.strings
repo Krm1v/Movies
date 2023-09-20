@@ -7,3 +7,6 @@
 */
 
 "home" = "Home";
+"error" = "Error";
+"ok" = "OK";
+"search" = "Search";

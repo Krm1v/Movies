@@ -10,11 +10,17 @@ import Foundation
 // swiftlint:disable explicit_type_interface function_parameter_count identifier_name line_length
 // swiftlint:disable nesting type_body_length type_name vertical_whitespace_opening_braces
 internal enum Localization {
+  /// Error
+  internal static let error = Localization.tr("Localizable", "error", fallback: "Error")
   /// Localizable.strings
   ///   Movies
   /// 
   ///   Created by Владислав Баранкевич on 20.09.2023.
   internal static let home = Localization.tr("Localizable", "home", fallback: "Home")
+  /// OK
+  internal static let ok = Localization.tr("Localizable", "ok", fallback: "OK")
+  /// Search
+  internal static let search = Localization.tr("Localizable", "search", fallback: "Search")
 }
 // swiftlint:enable explicit_type_interface function_parameter_count identifier_name line_length
 // swiftlint:enable nesting type_body_length type_name vertical_whitespace_opening_braces
