@@ -10,8 +10,8 @@ import Foundation
 typealias HTTPQueries = [String: String]
 typealias HTTPHeaders = [String: String]
 
-protocol RequestBuilder: AnyObject {
-    func buildRequest(baseURL: URL) -> URLRequest?
+protocol RequestBuilder {
+    func buildRequest(baseURL: URL, apiKey: String) -> URLRequest?
 }
 
 protocol Endpoint: RequestBuilder {
@@ -28,7 +28,7 @@ extension Endpoint {
     var baseURL: URL? { return nil }
     
     // MARK: - Methods
-    func buildRequest(baseURL: URL) -> URLRequest? {
+    func buildRequest(baseURL: URL, apiKey: String) -> URLRequest? {
         var completeURL = self.baseURL ?? baseURL
         guard let path = path else {
             return nil
@@ -40,9 +40,11 @@ extension Endpoint {
             resolvingAgainstBaseURL: true) else {
             return nil
         }
+        
         components.queryItems = queries.map { item in
             URLQueryItem(name: item.key, value: item.value)
         }
+        components.queryItems?.insert(URLQueryItem(name: "api_key", value: apiKey), at: 0)
         guard let urlForRequest = components.url else {
             return nil
         }

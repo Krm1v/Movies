@@ -9,15 +9,16 @@ import Foundation
 
 protocol BaseURLStorage: AnyObject {
     var baseURL: URL { get }
+    var apiKey: String { get }
 }
 
-protocol AppConfiguration: AnyObject {
+protocol AppConfiguration: BaseURLStorage {
     var bundleId: String { get }
 }
 
 final class AppConfigurationImpl: AppConfiguration {
     // MARK: - Private properties
-    private let apiKey: String
+    let apiKey: String
     private let apiURL: String
     
     // MARK: - Properties

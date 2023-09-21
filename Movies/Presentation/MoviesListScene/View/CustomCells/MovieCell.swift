@@ -11,7 +11,6 @@ import Combine
 final class MovieCell: UITableViewCell {
     // MARK: - UI Elements
     private let posterImageView = UIImageView()
-    private let titleHStack = UIStackView()
     private let titleLabel = UILabel()
     private let footerHStack = UIStackView()
     private let genresLabel = UILabel()
@@ -28,10 +27,23 @@ final class MovieCell: UITableViewCell {
         setupUI()
     }
     
+    // MARK: - Overriden methods
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        posterImageView.image = nil
+        titleLabel.text = nil
+        genresLabel.text = nil
+        ratingLabel.text = nil
+    }
+    
     // MARK: - Public methods
     func configure(_ model: MoviesListSceneCellModel) {
+        guard let url = PosterBaseUrl.original(path: model.poster).url else {
+            return
+        }
+        posterImageView.setImage(url)
         titleLabel.text = "\(model.movieTitle), \(model.movieReleaseDate)"
-        genresLabel.text = model.genre
+        genresLabel.text = "\(model.genre.map { $0 })"
         ratingLabel.text = model.averageRate
     }
 }
@@ -41,13 +53,23 @@ private extension MovieCell {
     func setupUI() {
         setupLayout()
         setupPosterImageView()
+        posterImageView.contentMode = .scaleToFill
         titleLabel.font = .systemFont(ofSize: 25, weight: .semibold)
-        titleLabel.textColor = .darkGray
+        titleLabel.numberOfLines = 0
+        
+        [titleLabel, ratingLabel, genresLabel].forEach { label in
+            label.textColor = .white
+            label.backgroundColor = .black.withAlphaComponent(0.5)
+            label.rounded(7)
+        }
+        
+        titleLabel.minimumScaleFactor = 0.5
         [genresLabel, ratingLabel].forEach { label in
             label.font = .systemFont(ofSize: 17, weight: .semibold)
-            label.textColor = .lightGray
+            label.textColor = .white
         }
         selectionStyle = .none
+        self.layoutSubviews()
     }
     
     func setupLayout() {
@@ -60,7 +82,8 @@ private extension MovieCell {
         
         addSubview(titleLabel, constraints: [
             titleLabel.topAnchor.constraint(equalTo: posterImageView.topAnchor, constant: 25),
-            titleLabel.leadingAnchor.constraint(equalTo: posterImageView.leadingAnchor, constant: 16)
+            titleLabel.leadingAnchor.constraint(equalTo: posterImageView.leadingAnchor, constant: 16),
+            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: posterImageView.trailingAnchor, constant: -16)
         ])
         
         addSubview(footerHStack, constraints: [
@@ -81,6 +104,7 @@ private extension MovieCell {
     }
     
     func setupPosterImageView() {
+        posterImageView.clipsToBounds = true
         posterImageView.rounded(12)
         posterImageView.layer.shadowColor = UIColor.black.cgColor
         posterImageView.layer.shadowRadius = 3.0

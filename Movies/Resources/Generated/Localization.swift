@@ -12,13 +12,13 @@ import Foundation
 internal enum Localization {
   /// Error
   internal static let error = Localization.tr("Localizable", "error", fallback: "Error")
+  /// OK
+  internal static let ok = Localization.tr("Localizable", "ok", fallback: "OK")
   /// Localizable.strings
   ///   Movies
   /// 
   ///   Created by Владислав Баранкевич on 20.09.2023.
-  internal static let home = Localization.tr("Localizable", "home", fallback: "Home")
-  /// OK
-  internal static let ok = Localization.tr("Localizable", "ok", fallback: "OK")
+  internal static let popularMovies = Localization.tr("Localizable", "popular-movies", fallback: "Popular movies")
   /// Search
   internal static let search = Localization.tr("Localizable", "search", fallback: "Search")
 }

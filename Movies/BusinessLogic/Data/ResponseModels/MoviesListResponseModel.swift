@@ -7,22 +7,23 @@
 
 import Foundation
 
-struct Empty: Decodable {
+struct MovieResponseModel: Decodable {
     let page: Int
-    let results: [MovieResponseModel]
-    let totalPages: Int
-    let totalResults: Int
+    let results: [MovieResponse]
 }
 
-struct MovieResponseModel: Decodable {
-    let adult: Bool
-    let genreIDS: [Int]
+struct MovieResponse: Decodable {
     let id: Int
-    let originalTitle: String
-    let overview: String
-    let posterPath: String
-    let releaseDate: String
     let title: String
-    let video: Bool
+    let overview: String?
     let voteAverage: Double
+    let posterPath: String?
+    let releaseDate: String?
+    let video: Bool
+    let genres: [Genre]?
+}
+
+struct Genre: Decodable {
+    let id: Int
+    let name: String
 }

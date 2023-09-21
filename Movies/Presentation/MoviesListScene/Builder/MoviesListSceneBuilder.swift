@@ -13,7 +13,7 @@ enum MoviesListSceneTransitions: Transition {
 
 final class MoviesListSceneBuilder {
     static func build(container: AppContainer) -> Module<MoviesListSceneTransitions, UIViewController> {
-        let viewModel = MoviesListSceneViewModel()
+        let viewModel = MoviesListSceneViewModel(moviesService: container.moviesService)
         let viewController = MoviesListSceneViewController(viewModel: viewModel)
         return Module(viewController: viewController, transitionPublisher: viewModel.transitionPublisher)
     }

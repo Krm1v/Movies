@@ -36,10 +36,7 @@ final class NetworkManager: Requestable {
                     return Fail(error: NetworkError.unexpectedError)
                         .eraseToAnyPublisher()
                 }
-                guard let response = output.response as? HTTPURLResponse else {
-                    return Fail(error: NetworkError.noResponse)
-                        .eraseToAnyPublisher()
-                }
+                Logger.log(output)
                 return self.handleError(output)
             }
             .eraseToAnyPublisher()
@@ -50,7 +47,8 @@ final class NetworkManager: Requestable {
 private extension NetworkManager {
     func handleError(_ output: URLSession.DataTaskPublisher.Output) -> AnyPublisher<Data, NetworkError> {
         guard let httpResponse = output.response as? HTTPURLResponse else {
-            assert(false, "Response fail")
+            return Fail(error: NetworkError.noResponse)
+                .eraseToAnyPublisher()
         }
         
         switch httpResponse.statusCode {

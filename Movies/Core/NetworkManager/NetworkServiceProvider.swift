@@ -37,7 +37,7 @@ final class NetworkServiceProviderImpl<E: Endpoint> {
 // MARK: - Extension NetworkServiceProvider
 extension NetworkServiceProviderImpl: NetworkServiceProvider {
     func execute(endpoint: E) -> AnyPublisher<Void, NetworkError> {
-        guard let request = endpoint.buildRequest(baseURL: baseURLStorage.baseURL) else {
+        guard let request = endpoint.buildRequest(baseURL: baseURLStorage.baseURL, apiKey: baseURLStorage.apiKey) else {
             return Fail(error: NetworkError.dataDecodingError)
                 .eraseToAnyPublisher()
         }
@@ -47,7 +47,7 @@ extension NetworkServiceProviderImpl: NetworkServiceProvider {
     }
 
     func execute<Model>(endpoint: E, decodeType: Model.Type) -> AnyPublisher<Model, NetworkError> where Model: Decodable {
-        guard let request = endpoint.buildRequest(baseURL: baseURLStorage.baseURL) else {
+        guard let request = endpoint.buildRequest(baseURL: baseURLStorage.baseURL, apiKey: baseURLStorage.apiKey) else {
             return Fail(error: NetworkError.requestError(.encodingError))
                 .eraseToAnyPublisher()
         }

@@ -9,6 +9,12 @@ import UIKit
 import Combine
 import CombineCocoa
 
+enum MovieSceneActions {
+    case didReachedBottom
+    case didSelectItem(MoviesListSceneItems)
+    case refreshControlDidRefresh(Bool)
+}
+
 final class MoviesSceneView: BaseView {
     typealias MoviesSceneDatasource = UITableViewDiffableDataSource<MoviesListSceneSections, MoviesListSceneItems>
     typealias MoviesSceneSnapshot = NSDiffableDataSourceSnapshot<MoviesListSceneSections, MoviesListSceneItems>
@@ -20,16 +26,20 @@ final class MoviesSceneView: BaseView {
     
     // MARK: - Properties
     private var datasource: MoviesSceneDatasource?
+    private(set) lazy var actionPublisher = actionSubject.eraseToAnyPublisher()
+    private let actionSubject = PassthroughSubject<MovieSceneActions, Never>()
     
     // MARK: - Init
     override init(frame: CGRect) {
         super.init(frame: frame)
+        bindActions()
         setupUI()
         setupTableView()
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
+        bindActions()
         setupUI()
         setupTableView()
     }
@@ -52,7 +62,7 @@ private extension MoviesSceneView {
         searchBar.placeholder = Localization.search
         setupLayout()
         tableView.refreshControl = refreshControl
-        tableView.rowHeight = 220
+        tableView.rowHeight = 260
         tableView.separatorStyle = .none
     }
     
@@ -66,7 +76,7 @@ private extension MoviesSceneView {
             tableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
             tableView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
+            tableView.bottomAnchor.constraint(equalTo: self.safeAreaLayoutGuide.bottomAnchor)
         ])
     }
     
@@ -90,5 +100,25 @@ private extension MoviesSceneView {
                 return cell
             }
         })
+    }
+    
+    func bindActions() {
+        tableView.reachedBottomPublisher()
+            .map { MovieSceneActions.didReachedBottom }
+            .subscribe(actionSubject)
+            .store(in: &cancellables)
+        
+        tableView.didSelectRowPublisher
+            .compactMap { [unowned self] indexPath in
+                datasource?.itemIdentifier(for: indexPath)
+            }
+            .map { MovieSceneActions.didSelectItem($0) }
+            .subscribe(actionSubject)
+            .store(in: &cancellables)
+        
+        refreshControl.isRefreshingPublisher
+            .map { MovieSceneActions.refreshControlDidRefresh($0) }
+            .subscribe(actionSubject)
+            .store(in: &cancellables)
     }
 }

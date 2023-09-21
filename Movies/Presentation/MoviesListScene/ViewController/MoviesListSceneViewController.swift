@@ -16,9 +16,10 @@ final class MoviesListSceneViewController: BaseViewController<MoviesListSceneVie
         view = contentView
     }
     override func viewDidLoad() {
+        setupBindings()
         super.viewDidLoad()
         updateSnapshot()
-        title = Localization.home
+        title = Localization.popularMovies
     }
 }
 
@@ -29,6 +30,21 @@ private extension MoviesListSceneViewController {
             .receive(on: DispatchQueue.main)
             .sink { [unowned self] sections in
                 self.contentView.setupSnapshot(sections: sections)
+            }
+            .store(in: &cancellables)
+    }
+    
+    func setupBindings() {
+        contentView.actionPublisher
+            .sink { [unowned self] actions in
+                switch actions {
+                case .didReachedBottom:
+                    viewModel.fetchMovies()
+                case .didSelectItem(let item):
+                    debugPrint(item)
+                case .refreshControlDidRefresh(let didRefresh):
+                    debugPrint(didRefresh)
+                }
             }
             .store(in: &cancellables)
     }

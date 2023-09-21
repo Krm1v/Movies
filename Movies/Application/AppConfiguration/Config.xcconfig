@@ -1,0 +1,12 @@
+//
+//  Config.xcconfig
+//  Movies
+//
+//  Created by Владислав Баранкевич on 21.09.2023.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+APP_BUNDLE_ID = com.vladyslav.movies.Movies
+BASE_URL = https:/$()/api.themoviedb.org
+API_KEY = 09189f726da5a959406d93670d566375
