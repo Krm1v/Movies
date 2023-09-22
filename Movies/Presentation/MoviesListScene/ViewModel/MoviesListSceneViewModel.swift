@@ -21,6 +21,7 @@ final class MoviesListSceneViewModel: BaseViewModel {
     
     // MARK: - Published properties
     @Published var sections: [MoviesSectionModel] = []
+    @Published var isRefreshing = false
     
     // MARK: - Init
     init(moviesService: MoviesService) {
@@ -29,7 +30,7 @@ final class MoviesListSceneViewModel: BaseViewModel {
     
     // MARK: - Overriden methods
     override func onViewDidLoad() {
-        fetchMovies()
+        fetchTopRatedMovies()
     }
     
     override func onViewWillAppear() {
@@ -37,37 +38,31 @@ final class MoviesListSceneViewModel: BaseViewModel {
     }
     
     // MARK: - Public methods
-    func fetchMovies() {
-        isLoadingSubject.send(true)
-        moviesService.fetchMoviesList(page: pageCount)
-            .subscribe(on: DispatchQueue.global())
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                guard let self = self else {
-                    return
-                }
-                switch completion {
-                case .finished:
-                    Logger.info("Movies fetched")
-                    self.updateDatasource()
-                    self.pageCount += 1
-                case .failure(let error):
-                    errorSubject.send(error)
-                    Logger.error(error.localizedDescription)
-                }
-            } receiveValue: { [weak self] movies in
-                guard let self = self else {
-                    return
-                }
-                self.movies.append(contentsOf: movies)
-                isLoadingSubject.send(false)
-            }
-            .store(in: &cancellables)
+    func fetchTopRatedMovies() {
+        fetchTopRatedMoviesRequest()
+    }
+    
+    func fetchPopularMovies() {
+        fetchPopularMoviesRequest()
+    }
+    
+    func searchMovie(movieTitle: String) {
+        searchMovieRequest(movieTitle: movieTitle)
+    }
+    
+    func resetToDefaultValues() {
+        pageCount = 1
+        movies = []
+    }
+    
+    func openDetailScene(with movieId: Int) {
+        transitionSubject.send(.openDetail(movieId: movieId))
     }
 }
 
 // MARK: - Private extension
 private extension MoviesListSceneViewModel {
+    // MARK: - Update datasource method
     func updateDatasource() {
         let movieCellModel = movies.map { movie in
             MoviesListSceneCellModel(movie)
@@ -81,18 +76,94 @@ private extension MoviesListSceneViewModel {
         
         sections = [mainSection]
     }
-}
-
-enum PosterBaseUrl {
-    case original(path: String)
-    case w500(path: String)
     
-    var url: URL? {
-        switch self {
-        case .original(let path):
-            return URL(string: "https://image.tmdb.org/t/p/original" + path)
-        case .w500(let path):
-            return URL(string: "https://image.tmdb.org/t/p/w500" + path)
-        }
+    // MARK: - Network requests calling
+    func fetchTopRatedMoviesRequest() {
+        isLoadingSubject.send(true)
+        moviesService.fetchTopRatedMovies(page: pageCount)
+            .subscribe(on: DispatchQueue.global())
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                guard let self = self else {
+                    return
+                }
+                switch completion {
+                case .finished:
+                    Logger.info("Movies fetched")
+                    self.updateDatasource()
+                    if !isRefreshing {
+                        self.pageCount += 1
+                    }
+                case .failure(let error):
+                    errorSubject.send(error)
+                    Logger.error(error.localizedDescription)
+                }
+            } receiveValue: { [weak self] movies in
+                guard let self = self else {
+                    return
+                }
+                self.movies.append(contentsOf: movies)
+                isLoadingSubject.send(false)
+                isRefreshing = false
+            }
+            .store(in: &cancellables)
+    }
+    
+    func fetchPopularMoviesRequest() {
+        isLoadingSubject.send(true)
+        moviesService.fetchPopularMovies(page: pageCount)
+            .subscribe(on: DispatchQueue.global())
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                guard let self = self else {
+                    return
+                }
+                switch completion {
+                case .finished:
+                    Logger.info("Finished")
+                    self.updateDatasource()
+                    if !isRefreshing {
+                        self.pageCount += 1
+                    }
+                case .failure(let error):
+                    Logger.error(error.localizedDescription)
+                    errorSubject.send(error)
+                }
+            } receiveValue: { [weak self] movies in
+                guard let self = self else {
+                    return
+                }
+                self.movies.append(contentsOf: movies)
+                isLoadingSubject.send(false)
+                isRefreshing = false
+            }
+            .store(in: &cancellables)
+    }
+    
+    func searchMovieRequest(movieTitle: String) {
+        isLoadingSubject.send(true)
+        moviesService.searchMovie(title: movieTitle)
+            .subscribe(on: DispatchQueue.global())
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                guard let self = self else {
+                    return
+                }
+                switch completion {
+                case .finished:
+                    Logger.info("Searched")
+                    self.updateDatasource()
+                case .failure(let error):
+                    Logger.error(error.localizedDescription)
+                    errorSubject.send(error)
+                }
+            } receiveValue: { [weak self] movies in
+                guard let self = self else {
+                    return
+                }
+                self.movies = movies
+                isLoadingSubject.send(false)
+            }
+            .store(in: &cancellables)
     }
 }

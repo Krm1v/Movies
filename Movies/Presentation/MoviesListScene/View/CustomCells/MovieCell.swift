@@ -43,7 +43,7 @@ final class MovieCell: UITableViewCell {
         }
         posterImageView.setImage(url)
         titleLabel.text = "\(model.movieTitle), \(model.movieReleaseDate)"
-        genresLabel.text = "\(model.genre.map { $0 })"
+//        genresLabel.text = "\(model.genre.map { $0 })"
         ratingLabel.text = model.averageRate
     }
 }

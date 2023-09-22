@@ -12,7 +12,10 @@ protocol MoviesService: AnyObject {
     var movies: [Movie] { get set }
     var moviesPublisher: AnyPublisher<[Movie], Error> { get }
     
-    func fetchMoviesList(page: Int) -> AnyPublisher<[Movie], Error>
+    func fetchTopRatedMovies(page: Int) -> AnyPublisher<[Movie], Error>
+    func fetchPopularMovies(page: Int) -> AnyPublisher<[Movie], Error>
+    func searchMovie(title: String) -> AnyPublisher<[Movie], Error>
+    func fetchMovieDetails(movieId: Int) -> AnyPublisher<MovieDetail, Error>
 }
 
 final class MoviesServiceImpl {
@@ -27,12 +30,51 @@ final class MoviesServiceImpl {
     }
     
     // MARK: - Public methods
-    func fetchMoviesList(page: Int) -> AnyPublisher<[Movie], Error> {
-        moviesNetworkService.fetchMoviesList(page: page)
+    func fetchTopRatedMovies(page: Int) -> AnyPublisher<[Movie], Error> {
+        moviesNetworkService.fetchTopRatedMovies(page: page)
             .mapError { $0 as Error }
+            .handleEvents(receiveOutput: { [weak self] movie in
+                guard let self = self else {
+                    return
+                }
+                _ = self.movies.map { movie in
+                    self.moviesNetworkService.getMovieGenres(id: movie.id)
+                        .mapError { $0 as Error }
+                        .map { genre in
+                            genre.map { Genre($0) }
+                        }
+                        .eraseToAnyPublisher()
+                }
+            })
             .map({ response in
                 response.results.map { Movie.init($0) }
             })
+            
+            .eraseToAnyPublisher()
+    }
+    
+    func fetchPopularMovies(page: Int) -> AnyPublisher<[Movie], Error> {
+        moviesNetworkService.fetchPopularMovies(page: page)
+            .mapError { $0 as Error }
+            .map { response in
+                response.results.map { Movie.init($0) }
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    func searchMovie(title: String) -> AnyPublisher<[Movie], Error> {
+        moviesNetworkService.searchMovie(title: title)
+            .mapError { $0 as Error }
+            .map { response in
+                response.results.map { Movie.init($0) }
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    func fetchMovieDetails(movieId: Int) -> AnyPublisher<MovieDetail, Error> {
+        moviesNetworkService.fetchMovieDetails(movieId: movieId)
+            .mapError { $0 as Error }
+            .map(MovieDetail.init)
             .eraseToAnyPublisher()
     }
 }

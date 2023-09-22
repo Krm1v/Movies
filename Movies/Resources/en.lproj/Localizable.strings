@@ -7,6 +7,10 @@
 */
 
 "popular-movies" = "Popular movies";
+"top-rated-movies" = "Top rated movies";
 "error" = "Error";
 "ok" = "OK";
 "search" = "Search";
+"top-rated" = "Top rated";
+"popular" = "Popular";
+"cancel" = "Cancel";

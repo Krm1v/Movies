@@ -13,7 +13,7 @@ final class Movie: Decodable {
     let poster: String
     let title: String
     let releaseDate: String
-    let genres: [String]
+    var genres: [Genre]
     let overview: String
     let averageRating: Double
     let isTrailerAvailable: Bool
@@ -24,7 +24,7 @@ final class Movie: Decodable {
         poster: String,
         title: String,
         releaseDate: String,
-        genres: [String],
+        genres: [Genre],
         overview: String,
         averageRating: Double,
         isTrailerAvailable: Bool
@@ -47,6 +47,29 @@ final class Movie: Decodable {
         self.overview = response.overview ?? ""
         self.averageRating = response.voteAverage
         self.isTrailerAvailable = response.video
-        self.genres = response.genres?.compactMap { $0.name } ?? []
+        if let responseGenres = response.genres {
+            self.genres = responseGenres.map({ genreResponse in
+                Genre(genreResponse)
+            })
+        } else {
+            self.genres = []
+        }
+    }
+}
+
+final class Genre: Decodable {
+    // MARK: - Properties
+    let id: Int
+    let name: String
+    
+    // MARK: - Init
+    init(id: Int, name: String) {
+        self.id = id
+        self.name = name
+    }
+    
+    init(_ response: GenreResponse) {
+        self.id = response.id
+        self.name = response.name
     }
 }

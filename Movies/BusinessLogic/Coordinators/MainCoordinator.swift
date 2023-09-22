@@ -36,10 +36,23 @@ private extension MainCoordinator {
         module.transitionPublisher
             .sink { [unowned self] transition in
                 switch transition {
-                case .openDetail: debugPrint("openDetail")
+                case .openDetail(let movieId):
+                    openDetailScene(movieId: movieId)
                 }
             }
             .store(in: &cancellables)
         setRoot([module.viewController])
+    }
+    
+    func openDetailScene(movieId: Int) {
+        let module = MovieDetailSceneBuilder.build(container, movieId: movieId)
+        module.transitionPublisher
+            .sink { [unowned self] transition in
+                switch transition {
+                case .backToMoviesList: pop()
+                }
+            }
+            .store(in: &cancellables)
+        push(module.viewController)
     }
 }

@@ -13,6 +13,9 @@ enum MovieSceneActions {
     case didReachedBottom
     case didSelectItem(MoviesListSceneItems)
     case refreshControlDidRefresh(Bool)
+    case filterButtonDidTapped
+    case searchBarTextDidChanged(String)
+    case searchBarButtonTapped
 }
 
 final class MoviesSceneView: BaseView {
@@ -23,6 +26,7 @@ final class MoviesSceneView: BaseView {
     private let searchBar = UISearchBar()
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let refreshControl = UIRefreshControl()
+    private let navBarButton = UIBarButtonItem()
     
     // MARK: - Properties
     private var datasource: MoviesSceneDatasource?
@@ -51,7 +55,18 @@ final class MoviesSceneView: BaseView {
             snapshot.appendSections([section.section])
             snapshot.appendItems(section.items, toSection: section.section)
         }
-        datasource?.apply(snapshot, animatingDifferences: true)
+        datasource?.apply(snapshot, animatingDifferences: false)
+    }
+    
+    func setupNavBarButton(for controller: UIViewController) {
+        navBarButton.style = .plain
+        navBarButton.image = UIImage(systemName: "list.dash")
+        navBarButton.tintColor = .black
+        controller.navigationItem.rightBarButtonItem = navBarButton
+    }
+    
+    func stopRefreshing() {
+        refreshControl.endRefreshing()
     }
 }
 
@@ -60,8 +75,11 @@ private extension MoviesSceneView {
     func setupUI() {
         backgroundColor = .white
         searchBar.placeholder = Localization.search
+        searchBar.returnKeyType = .done
+        searchBar.enablesReturnKeyAutomatically = false
         setupLayout()
         tableView.refreshControl = refreshControl
+        tableView.keyboardDismissMode = .onDrag
         tableView.rowHeight = 260
         tableView.separatorStyle = .none
     }
@@ -118,6 +136,21 @@ private extension MoviesSceneView {
         
         refreshControl.isRefreshingPublisher
             .map { MovieSceneActions.refreshControlDidRefresh($0) }
+            .subscribe(actionSubject)
+            .store(in: &cancellables)
+        
+        navBarButton.tapPublisher
+            .map { MovieSceneActions.filterButtonDidTapped }
+            .subscribe(actionSubject)
+            .store(in: &cancellables)
+        
+        searchBar.textDidChangePublisher
+            .map { MovieSceneActions.searchBarTextDidChanged($0) }
+            .subscribe(actionSubject)
+            .store(in: &cancellables)
+        
+        searchBar.searchButtonClickedPublisher
+            .map { MovieSceneActions.searchBarButtonTapped }
             .subscribe(actionSubject)
             .store(in: &cancellables)
     }

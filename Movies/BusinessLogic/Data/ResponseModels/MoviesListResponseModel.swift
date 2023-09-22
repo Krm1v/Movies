@@ -20,10 +20,10 @@ struct MovieResponse: Decodable {
     let posterPath: String?
     let releaseDate: String?
     let video: Bool
-    let genres: [Genre]?
+    let genres: [GenreResponse]?
 }
 
-struct Genre: Decodable {
+struct GenreResponse: Decodable {
     let id: Int
     let name: String
 }

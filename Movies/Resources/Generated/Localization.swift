@@ -10,10 +10,14 @@ import Foundation
 // swiftlint:disable explicit_type_interface function_parameter_count identifier_name line_length
 // swiftlint:disable nesting type_body_length type_name vertical_whitespace_opening_braces
 internal enum Localization {
+  /// Cancel
+  internal static let cancel = Localization.tr("Localizable", "cancel", fallback: "Cancel")
   /// Error
   internal static let error = Localization.tr("Localizable", "error", fallback: "Error")
   /// OK
   internal static let ok = Localization.tr("Localizable", "ok", fallback: "OK")
+  /// Popular
+  internal static let popular = Localization.tr("Localizable", "popular", fallback: "Popular")
   /// Localizable.strings
   ///   Movies
   /// 
@@ -21,6 +25,10 @@ internal enum Localization {
   internal static let popularMovies = Localization.tr("Localizable", "popular-movies", fallback: "Popular movies")
   /// Search
   internal static let search = Localization.tr("Localizable", "search", fallback: "Search")
+  /// Top rated
+  internal static let topRated = Localization.tr("Localizable", "top-rated", fallback: "Top rated")
+  /// Top rated movies
+  internal static let topRatedMovies = Localization.tr("Localizable", "top-rated-movies", fallback: "Top rated movies")
 }
 // swiftlint:enable explicit_type_interface function_parameter_count identifier_name line_length
 // swiftlint:enable nesting type_body_length type_name vertical_whitespace_opening_braces

@@ -8,7 +8,7 @@
 import UIKit
 
 enum MoviesListSceneTransitions: Transition {
-    case openDetail
+    case openDetail(movieId: Int)
 }
 
 final class MoviesListSceneBuilder {
