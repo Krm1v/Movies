@@ -14,6 +14,8 @@ final class MovieDetailViewModel: BaseViewModel {
     private let transitionSubject = PassthroughSubject<MovieDetailSceneTransitions, Never>()
     private let moviesService: MoviesService
     private let movieId: Int
+    private var movie: MovieDetail?
+    @Published var datasource: MovieDetailModel?
     
     // MARK: - Init
     init(movieId: Int, moviesService: MoviesService) {
@@ -29,6 +31,14 @@ final class MovieDetailViewModel: BaseViewModel {
 
 // MARK: - Private extension
 private extension MovieDetailViewModel {
+    func updateDatasource() {
+        guard let movie = movie else {
+            return
+        }
+        datasource = .init(movie)
+    }
+    
+    // MARK: - Network requests calling
     func fetchMovieDetailsRequest(movieId: Int) {
         moviesService.fetchMovieDetails(movieId: movieId)
             .subscribe(on: DispatchQueue.global())
@@ -40,6 +50,7 @@ private extension MovieDetailViewModel {
                 switch completion {
                 case .finished:
                     Logger.info("Details fetched")
+                    self.updateDatasource()
                 case .failure(let error):
                     Logger.error(error.localizedDescription)
                     errorSubject.send(error)
@@ -48,7 +59,7 @@ private extension MovieDetailViewModel {
                 guard let self = self else {
                     return
                 }
-                debugPrint(movie)
+                self.movie = movie
             }
             .store(in: &cancellables)
     }

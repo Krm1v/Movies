@@ -23,6 +23,8 @@ internal enum Localization {
   /// 
   ///   Created by Владислав Баранкевич on 20.09.2023.
   internal static let popularMovies = Localization.tr("Localizable", "popular-movies", fallback: "Popular movies")
+  /// Rating
+  internal static let rating = Localization.tr("Localizable", "rating", fallback: "Rating")
   /// Search
   internal static let search = Localization.tr("Localizable", "search", fallback: "Search")
   /// Top rated

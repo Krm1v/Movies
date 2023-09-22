@@ -15,4 +15,42 @@ final class MovieDetailViewController: BaseViewController<MovieDetailViewModel> 
     override func loadView() {
         view = contentView
     }
+    
+    override func viewDidLoad() {
+        setupBindings()
+        super.viewDidLoad()
+        updateDatasource()
+    }
+}
+
+// MARK: - Private extension
+private extension MovieDetailViewController {
+    func setupBindings() {
+        contentView.actionPublisher
+            .sink { [unowned self] actions in
+                switch actions {
+                case .youtubeButtonDidTapped:
+                    debugPrint("Youtube")
+                case .imageViewDidTapped:
+                    debugPrint("Image")
+                }
+            }
+            .store(in: &cancellables)
+    }
+    
+    func updateDatasource() {
+        viewModel.$datasource
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] model in
+                guard 
+                    let self = self,
+                    let model = model
+                else {
+                    return
+                }
+                contentView.configure(model: model)
+                title = model.title
+            }
+            .store(in: &cancellables)
+    }
 }

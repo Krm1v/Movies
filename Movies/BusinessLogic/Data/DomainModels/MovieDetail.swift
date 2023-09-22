@@ -9,23 +9,23 @@ import Foundation
 
 final class MovieDetail: Decodable {
     // MARK: - Properties
-    let posterPath: String?
+    let posterPath: String
     let title: String
-    let releaseDate: String?
+    let releaseDate: String
     var productionCountries: [String]
-    let genres: [String]?
-    let overview: String?
+    let genres: [String]
+    let overview: String
     let voteAverage: Double
     let isVideo: Bool
     
     // MARK: - Init
     init(
-        posterPath: String?,
+        posterPath: String,
         title: String,
-        releaseDate: String?,
+        releaseDate: String,
         productionCountries: [String],
-        genres: [String]?,
-        overview: String?,
+        genres: [String],
+        overview: String,
         voteAverage: Double,
         isVideo: Bool
     ) {
@@ -46,13 +46,9 @@ final class MovieDetail: Decodable {
         self.productionCountries = response.productionCountries.compactMap({ country in
             country.name
         })
-        if let responseGenres = response.genres {
-            self.genres = responseGenres.compactMap({ genreResponse in
-                genreResponse.name
-            })
-        } else {
-            self.genres = []
-        }
+        self.genres = response.genres.compactMap({ genreResponse in
+            genreResponse.name
+        })
         self.overview = response.overview
         self.voteAverage = response.voteAverage
         self.isVideo = response.video

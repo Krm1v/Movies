@@ -68,6 +68,11 @@ final class MoviesSceneView: BaseView {
     func stopRefreshing() {
         refreshControl.endRefreshing()
     }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        tableView.rowHeight = self.frame.width * 0.8
+    }
 }
 
 // MARK: - Private extension
@@ -80,7 +85,6 @@ private extension MoviesSceneView {
         setupLayout()
         tableView.refreshControl = refreshControl
         tableView.keyboardDismissMode = .onDrag
-        tableView.rowHeight = 260
         tableView.separatorStyle = .none
     }
     

@@ -8,12 +8,12 @@
 import Foundation
 
 struct MovieDetailResponseModel: Decodable {
-    let posterPath: String?
+    let posterPath: String
     let title: String
-    let releaseDate: String?
+    let releaseDate: String
     let productionCountries: [ProductionCountries]
-    let genres: [Genres]?
-    let overview: String?
+    let genres: [Genres]
+    let overview: String
     let voteAverage: Double
     let video: Bool
 }
