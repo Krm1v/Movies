@@ -44,4 +44,3 @@ class BaseViewModel: ViewModel {
         debugPrint("deinit of ", String(describing: self))
     }
 }
-

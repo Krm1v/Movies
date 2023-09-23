@@ -19,4 +19,3 @@ extension Data {
         return prettyJSON as String
     }
 }
-

@@ -109,4 +109,3 @@ private enum Constants {
     static let largeFontSize: CGFloat = 30
     static let regularFontSize: CGFloat = 17
 }
-

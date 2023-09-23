@@ -27,6 +27,22 @@ final class MovieDetailViewModel: BaseViewModel {
     override func onViewDidLoad() {
         fetchMovieDetailsRequest(movieId: movieId)
     }
+    
+    // MARK: - Public methods
+    func openPosterDetailScene() {
+        guard let posterPath = movie?.posterPath else {
+            return
+        }
+        transitionSubject.send(.presentPosterDetailScene(posterPath: posterPath))
+    }
+    
+    func openYoutubePlayerScene() {
+        guard let trailerKey = movie?.video else {
+            return
+        }
+        let movieTrailerModel = MovieTrailerModel(key: trailerKey)
+        transitionSubject.send(.presentYoutubePlayerScene(trailerKey: movieTrailerModel))
+    }
 }
 
 // MARK: - Private extension

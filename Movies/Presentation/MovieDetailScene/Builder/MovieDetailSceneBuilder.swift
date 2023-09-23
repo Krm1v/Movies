@@ -9,6 +9,8 @@ import UIKit
 
 enum MovieDetailSceneTransitions: Transition {
     case backToMoviesList
+    case presentPosterDetailScene(posterPath: String)
+    case presentYoutubePlayerScene(trailerKey: MovieTrailerModel)
 }
 
 final class MovieDetailSceneBuilder {

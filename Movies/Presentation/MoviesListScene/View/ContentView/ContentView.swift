@@ -23,10 +23,11 @@ final class MoviesSceneView: BaseView {
     typealias MoviesSceneSnapshot = NSDiffableDataSourceSnapshot<MoviesListSceneSections, MoviesListSceneItems>
     
     // MARK: - UI Elements
-    private let searchBar = UISearchBar()
+    private(set) var searchBar = UISearchBar()
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let refreshControl = UIRefreshControl()
     private let navBarButton = UIBarButtonItem()
+    private let emptyDataLabel = UILabel()
     
     // MARK: - Properties
     private var datasource: MoviesSceneDatasource?
@@ -69,9 +70,14 @@ final class MoviesSceneView: BaseView {
         refreshControl.endRefreshing()
     }
     
+    func selectViewState(isMoviesEmpty: Bool) {
+        emptyDataLabel.isHidden = !isMoviesEmpty ? true : false
+    }
+    
+    // MARK: - Overriden methods
     override func layoutSubviews() {
         super.layoutSubviews()
-        tableView.rowHeight = self.frame.width * 0.8
+        tableView.rowHeight = self.frame.width * 1.2
     }
 }
 
@@ -86,6 +92,8 @@ private extension MoviesSceneView {
         tableView.refreshControl = refreshControl
         tableView.keyboardDismissMode = .onDrag
         tableView.separatorStyle = .none
+        emptyDataLabel.text = "No results"
+        emptyDataLabel.font = .systemFont(ofSize: 20, weight: .regular)
     }
     
     func setupLayout() {
@@ -99,6 +107,11 @@ private extension MoviesSceneView {
             tableView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: self.safeAreaLayoutGuide.bottomAnchor)
+        ])
+        
+        addSubview(emptyDataLabel, constraints: [
+            emptyDataLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor),
+            emptyDataLabel.centerYAnchor.constraint(equalTo: self.centerYAnchor)
         ])
     }
     

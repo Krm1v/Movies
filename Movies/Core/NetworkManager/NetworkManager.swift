@@ -36,7 +36,7 @@ final class NetworkManager: Requestable {
                     return Fail(error: NetworkError.unexpectedError)
                         .eraseToAnyPublisher()
                 }
-                Logger.log(output)
+//                Logger.log(output)
                 return self.handleError(output)
             }
             .eraseToAnyPublisher()
@@ -57,7 +57,7 @@ private extension NetworkManager {
                 .setFailureType(to: NetworkError.self)
                 .eraseToAnyPublisher()
         case 400...499:
-            return Fail(error: NetworkError.clientError(output.data))
+            return Fail(error: NetworkError.clientError)
                 .eraseToAnyPublisher()
         case 500...599:
             return Fail(error: NetworkError.serverError)

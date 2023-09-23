@@ -7,16 +7,15 @@
 
 import Foundation
 
-final class Movie: Decodable {
+final class Movie {
     // MARK: - Properties
     let id: Int
     let poster: String
     let title: String
     let releaseDate: String
-    var genres: [Genre]
+    var genres: [Int]
     let overview: String
     let averageRating: Double
-    let isTrailerAvailable: Bool
     
     // MARK: - Init
     init(
@@ -24,10 +23,9 @@ final class Movie: Decodable {
         poster: String,
         title: String,
         releaseDate: String,
-        genres: [Genre],
+        genres: [Int],
         overview: String,
-        averageRating: Double,
-        isTrailerAvailable: Bool
+        averageRating: Double
     ) {
         self.id = id
         self.poster = poster
@@ -36,7 +34,6 @@ final class Movie: Decodable {
         self.genres = genres
         self.overview = overview
         self.averageRating = averageRating
-        self.isTrailerAvailable = isTrailerAvailable
     }
     
     init(_ response: MovieResponse) {
@@ -46,30 +43,6 @@ final class Movie: Decodable {
         self.releaseDate = response.releaseDate ?? ""
         self.overview = response.overview ?? ""
         self.averageRating = response.voteAverage
-        self.isTrailerAvailable = response.video
-        if let responseGenres = response.genres {
-            self.genres = responseGenres.map({ genreResponse in
-                Genre(genreResponse)
-            })
-        } else {
-            self.genres = []
-        }
-    }
-}
-
-final class Genre: Decodable {
-    // MARK: - Properties
-    let id: Int
-    let name: String
-    
-    // MARK: - Init
-    init(id: Int, name: String) {
-        self.id = id
-        self.name = name
-    }
-    
-    init(_ response: GenreResponse) {
-        self.id = response.id
-        self.name = response.name
+        self.genres = response.genreIds
     }
 }

@@ -58,4 +58,3 @@ extension UIStackView {
         addArranged(stack, size: size)
     }
 }
-

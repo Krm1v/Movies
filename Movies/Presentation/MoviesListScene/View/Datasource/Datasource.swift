@@ -21,7 +21,7 @@ struct MoviesListSceneCellModel: Hashable, Identifiable {
     let poster: String
     let movieTitle: String
     let movieReleaseDate: String
-//    let genre: [String]
+    var genre: [String] = []
     let averageRate: String
     
     // MARK: - Init
@@ -30,7 +30,6 @@ struct MoviesListSceneCellModel: Hashable, Identifiable {
         self.poster = movie.poster
         self.movieTitle = movie.title
         self.movieReleaseDate = String(movie.releaseDate.prefix(4))
-//        self.genre = movie.genres
         self.averageRate = String(movie.averageRating)
     }
 }

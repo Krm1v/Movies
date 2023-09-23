@@ -16,6 +16,7 @@ protocol MoviesService: AnyObject {
     func fetchPopularMovies(page: Int) -> AnyPublisher<[Movie], Error>
     func searchMovie(title: String) -> AnyPublisher<[Movie], Error>
     func fetchMovieDetails(movieId: Int) -> AnyPublisher<MovieDetail, Error>
+    func fetchGenres() -> AnyPublisher<[Genre], Error>
 }
 
 final class MoviesServiceImpl {
@@ -33,19 +34,6 @@ final class MoviesServiceImpl {
     func fetchTopRatedMovies(page: Int) -> AnyPublisher<[Movie], Error> {
         moviesNetworkService.fetchTopRatedMovies(page: page)
             .mapError { $0 as Error }
-            .handleEvents(receiveOutput: { [weak self] movie in
-                guard let self = self else {
-                    return
-                }
-                _ = self.movies.map { movie in
-                    self.moviesNetworkService.getMovieGenres(id: movie.id)
-                        .mapError { $0 as Error }
-                        .map { genre in
-                            genre.map { Genre($0) }
-                        }
-                        .eraseToAnyPublisher()
-                }
-            })
             .map({ response in
                 response.results.map { Movie.init($0) }
             })
@@ -75,6 +63,15 @@ final class MoviesServiceImpl {
         moviesNetworkService.fetchMovieDetails(movieId: movieId)
             .mapError { $0 as Error }
             .map(MovieDetail.init)
+            .eraseToAnyPublisher()
+    }
+    
+    func fetchGenres() -> AnyPublisher<[Genre], Error> {
+        moviesNetworkService.fetchGenres()
+            .mapError { $0 as Error }
+            .map({ response in
+                response.genres.map { Genre($0) }
+            })
             .eraseToAnyPublisher()
     }
 }

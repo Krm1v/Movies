@@ -24,7 +24,7 @@ extension RequestBuilderError: LocalizedError {
 }
 
 enum NetworkError: Error {
-    case clientError(Data?)
+    case clientError
     case serverError
     case dataDecodingError
     case unexpectedError
@@ -41,17 +41,10 @@ enum NetworkError: Error {
 extension NetworkError: LocalizedError {
     var errorDescription: String? {
         switch self {
-        case .clientError(let data):
-            let defaultErrorMessage = "An error occured on the client side. Please, try again later"
-            guard let data = data,
-                  let errorModel = try? JSONDecoder().decode(APIErrorResponseModel.self, from: data)
-            else {
-                return defaultErrorMessage
-            }
-            return errorModel.message
-
-        case .serverError:
+        case .clientError:
             return "An error occured on the client side. Please, try again later"
+        case .serverError:
+            return "An error occured on the server side. Please, try again later"
         case .dataDecodingError:
             return "An error occured during data decoding. Please, try again later."
         case .unexpectedError:

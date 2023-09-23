@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class MovieDetail: Decodable {
+final class MovieDetail {
     // MARK: - Properties
     let posterPath: String
     let title: String
@@ -16,7 +16,7 @@ final class MovieDetail: Decodable {
     let genres: [String]
     let overview: String
     let voteAverage: Double
-    let isVideo: Bool
+    var video: String?
     
     // MARK: - Init
     init(
@@ -27,7 +27,7 @@ final class MovieDetail: Decodable {
         genres: [String],
         overview: String,
         voteAverage: Double,
-        isVideo: Bool
+        video: String?
     ) {
         self.posterPath = posterPath
         self.title = title
@@ -36,7 +36,7 @@ final class MovieDetail: Decodable {
         self.genres = genres
         self.overview = overview
         self.voteAverage = voteAverage
-        self.isVideo = isVideo
+        self.video = video
     }
     
     init(_ response: MovieDetailResponseModel) {
@@ -51,6 +51,8 @@ final class MovieDetail: Decodable {
         })
         self.overview = response.overview
         self.voteAverage = response.voteAverage
-        self.isVideo = response.video
+        if let videoResults = response.videos?.results {
+            _ = videoResults.map { self.video = $0.key }
+        }
     }
 }

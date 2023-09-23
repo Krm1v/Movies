@@ -21,4 +21,3 @@ struct UIViewControllerPreview<ViewController: UIViewController>: UIViewControll
         viewController
     }
 }
-

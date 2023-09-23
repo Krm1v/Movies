@@ -16,11 +16,11 @@ struct MovieDetailModel {
     let genres: [String]?
     let rating: String?
     let overview: String?
-    let isVideo: Bool
+    let video: String?
     
     // MARK: - Init
     init(_ movieDetails: MovieDetail) {
-        self.image = PosterBaseUrl.original(path: movieDetails.posterPath ).url
+        self.image = PosterBaseUrl.w500(path: movieDetails.posterPath ).url
         self.title = movieDetails.title
         self.countries = movieDetails.productionCountries
         let releaseDate = String(movieDetails.releaseDate.prefix(4))
@@ -28,6 +28,6 @@ struct MovieDetailModel {
         self.genres = movieDetails.genres
         self.rating = String(format: "%.1f", movieDetails.voteAverage)
         self.overview = movieDetails.overview
-        self.isVideo = movieDetails.isVideo
+        self.video = movieDetails.video
     }
 }

@@ -19,11 +19,5 @@ struct MovieResponse: Decodable {
     let voteAverage: Double
     let posterPath: String?
     let releaseDate: String?
-    let video: Bool
-    let genres: [GenreResponse]?
-}
-
-struct GenreResponse: Decodable {
-    let id: Int
-    let name: String
+    let genreIds: [Int]
 }

@@ -51,7 +51,7 @@ final class MovieDetailSceneView: BaseView {
     
     // MARK: - Public methods
     func configure(model: MovieDetailModel) {
-        youtubeButton.isHidden = model.isVideo ? true : false
+        youtubeButton.alpha = model.video != nil ? 1.0 : 0
         titleLabel.text = model.title
         var countries = model.countries
         countries.append(model.year ?? "")
@@ -62,6 +62,7 @@ final class MovieDetailSceneView: BaseView {
         guard let url = model.image else {
             return
         }
+        
         posterImageView.setImage(url)
     }
 }
@@ -83,11 +84,15 @@ private extension MovieDetailSceneView {
         genreLabel.numberOfLines = 0
         
         overviewLabel.text = "Overview"
+        overviewLabel.textAlignment = .justified
         overviewLabel.numberOfLines = 0
         
         posterImageView.image = Assets.placeholder.image
         posterImageView.isUserInteractionEnabled = true
         posterImageView.addGestureRecognizer(tapPosterGesture)
+        posterImageView.contentMode = .scaleAspectFit
+        posterImageView.clipsToBounds = true
+        posterImageView.addShadow()
         
         ratingLabel.font = .systemFont(ofSize: 20, weight: .semibold)
         setupYoutubeButton()
@@ -99,26 +104,22 @@ private extension MovieDetailSceneView {
         let contentRect: CGRect = scrollView.subviews.reduce(into: .zero) { rect, view in
             rect = rect.union(view.frame)
         }
+        
         scrollView.contentSize = contentRect.size
-        addSubview(scrollView, constraints: [
-            scrollView.topAnchor.constraint(equalTo: self.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
-        ])
+        addSubview(scrollView, withEdgeInsets: .all(.zero))
         
         scrollView.contentView.addSubview(posterImageView, constraints: [
             posterImageView.topAnchor.constraint(equalTo: scrollView.contentView.topAnchor),
             posterImageView.leadingAnchor.constraint(equalTo: scrollView.contentView.leadingAnchor),
             posterImageView.trailingAnchor.constraint(equalTo: scrollView.contentView.trailingAnchor),
-            posterImageView.heightAnchor.constraint(equalTo: self.widthAnchor, multiplier: 1.0)
+            posterImageView.heightAnchor.constraint(equalTo: self.widthAnchor, multiplier: 1.1)
         ])
         
         scrollView.contentView.addSubview(mainStackView, constraints: [
             mainStackView.topAnchor.constraint(equalTo: posterImageView.bottomAnchor, constant: 16),
-            mainStackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 16),
-            mainStackView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -16),
-            mainStackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor)
+            mainStackView.leadingAnchor.constraint(equalTo: scrollView.contentView.leadingAnchor, constant: 16),
+            mainStackView.trailingAnchor.constraint(equalTo: scrollView.contentView.trailingAnchor, constant: -16),
+            mainStackView.bottomAnchor.constraint(equalTo: scrollView.contentView.bottomAnchor)
         ])
         
         // MARK: - Other UI elements
@@ -155,7 +156,7 @@ private extension MovieDetailSceneView {
         titleVStack.setup(
             axis: .vertical,
             alignment: .leading,
-            distribution: .fillEqually,
+            distribution: .equalSpacing,
             spacing: 8)
         
         ratingHStack.setup(
@@ -193,9 +194,3 @@ struct FlowProvider: PreviewProvider {
     }
 }
 #endif
-
-
-
-
-
-

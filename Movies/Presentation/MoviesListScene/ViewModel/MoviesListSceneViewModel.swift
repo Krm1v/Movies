@@ -17,11 +17,13 @@ final class MoviesListSceneViewModel: BaseViewModel {
     private let transitionSubject = PassthroughSubject<MoviesListSceneTransitions, Never>()
     private let moviesService: MoviesService
     private var pageCount = 1
-    private var movies: [Movie] = []
     
     // MARK: - Published properties
+    @Published private var movies: [Movie] = []
     @Published var sections: [MoviesSectionModel] = []
+    @Published private var genres: [Genre] = []
     @Published var isRefreshing = false
+    @Published var isMoviesEmpty = true
     
     // MARK: - Init
     init(moviesService: MoviesService) {
@@ -30,7 +32,16 @@ final class MoviesListSceneViewModel: BaseViewModel {
     
     // MARK: - Overriden methods
     override func onViewDidLoad() {
-        fetchTopRatedMovies()
+        checkMoviesList()
+        $genres
+            .sink { [weak self] _ in
+                guard let self = self else {
+                    return
+                }
+                self.fetchPopularMovies()
+            }
+            .store(in: &cancellables)
+        fetchGenresRequest()
     }
     
     override func onViewWillAppear() {
@@ -64,9 +75,17 @@ final class MoviesListSceneViewModel: BaseViewModel {
 private extension MoviesListSceneViewModel {
     // MARK: - Update datasource method
     func updateDatasource() {
+        let genreDictionary = Dictionary(uniqueKeysWithValues: genres.map { ($0.id, $0.name) })
+        
         let movieCellModel = movies.map { movie in
-            MoviesListSceneCellModel(movie)
+            var movieModel = MoviesListSceneCellModel(movie)
+            let movieGenres = movie.genres.map { genreId in
+                return genreDictionary[genreId] ?? ""
+            }
+            movieModel.genre = movieGenres
+            return movieModel
         }
+        
         var mainSection = MoviesSectionModel(
             section: .main,
             items: [])
@@ -162,7 +181,46 @@ private extension MoviesListSceneViewModel {
                     return
                 }
                 self.movies = movies
+                debugPrint(self.movies.count)
                 isLoadingSubject.send(false)
+            }
+            .store(in: &cancellables)
+    }
+    
+    func fetchGenresRequest() {
+        isLoadingSubject.send(true)
+        moviesService.fetchGenres()
+            .subscribe(on: DispatchQueue.global())
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                guard let self = self else {
+                    return
+                }
+                switch completion {
+                case .finished:
+                    Logger.info("Genres fetched")
+                case .failure(let error):
+                    Logger.error(error.localizedDescription)
+                    errorSubject.send(error)
+                }
+            } receiveValue: { [weak self] genres in
+                guard let self = self else {
+                    return
+                }
+                self.genres = genres
+                isLoadingSubject.send(false)
+            }
+            .store(in: &cancellables)
+    }
+    
+    func checkMoviesList() {
+        $movies
+            .sink { [weak self] movies in
+                guard let self = self else {
+                    return
+                }
+                isMoviesEmpty = movies.isEmpty ? true : false
+                debugPrint("IsMoviesEmpty: \(isMoviesEmpty)")
             }
             .store(in: &cancellables)
     }

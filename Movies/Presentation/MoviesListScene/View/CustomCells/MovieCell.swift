@@ -36,14 +36,19 @@ final class MovieCell: UITableViewCell {
         ratingLabel.text = nil
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        posterImageView.layer.shadowPath = UIBezierPath(rect: posterImageView.layer.bounds).cgPath
+    }
+    
     // MARK: - Public methods
     func configure(_ model: MoviesListSceneCellModel) {
         guard let url = PosterBaseUrl.original(path: model.poster).url else {
             return
         }
         posterImageView.setImage(url)
-        titleLabel.text = "\(model.movieTitle), \(model.movieReleaseDate)"
-//        genresLabel.text = "\(model.genre.map { $0 })"
+        titleLabel.setCommaSeparatedText(from: [model.movieTitle, model.movieReleaseDate])
+        genresLabel.setCommaSeparatedText(from: model.genre)
         ratingLabel.text = model.averageRate
     }
 }
@@ -52,7 +57,8 @@ final class MovieCell: UITableViewCell {
 private extension MovieCell {
     func setupUI() {
         setupLayout()
-        setupPosterImageView()
+        posterImageView.clipsToBounds = true
+        posterImageView.addShadow()
         posterImageView.contentMode = .scaleToFill
         titleLabel.font = .systemFont(ofSize: 25, weight: .semibold)
         titleLabel.numberOfLines = 0
@@ -68,8 +74,10 @@ private extension MovieCell {
             label.font = .systemFont(ofSize: 17, weight: .semibold)
             label.textColor = .white
         }
+        
+        genresLabel.numberOfLines = 0
+        genresLabel.minimumScaleFactor = 0.8
         selectionStyle = .none
-        self.layoutSubviews()
     }
     
     func setupLayout() {
@@ -101,17 +109,6 @@ private extension MovieCell {
         [genresLabel, ratingLabel].forEach { label in
             footerHStack.addArrangedSubview(label)
         }
-    }
-    
-    func setupPosterImageView() {
-        posterImageView.clipsToBounds = true
-        posterImageView.rounded(12)
-        posterImageView.layer.shadowColor = UIColor.black.cgColor
-        posterImageView.layer.shadowRadius = 3.0
-        posterImageView.layer.shadowOpacity = 1.0
-        posterImageView.layer.shadowOffset = CGSize(width: 4, height: 4)
-        posterImageView.layer.masksToBounds = false
-        posterImageView.backgroundColor = .systemGray6
     }
 }
 

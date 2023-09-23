@@ -7,15 +7,24 @@
 
 import UIKit
 
-fileprivate enum SortingParameters {
-    case topRated
-    case popular
-}
-
 final class MoviesListSceneViewController: BaseViewController<MoviesListSceneViewModel> {
+    fileprivate enum SortingParameters {
+        case topRated
+        case popular
+        
+        var screenTitle: String {
+            switch self {
+            case .topRated:
+                return Localization.topRated
+            case .popular:
+                return Localization.popularMovies
+            }
+        }
+    }
+    
     // MARK: - Properties
     private let contentView = MoviesSceneView()
-    private var sortingParameters: SortingParameters = .topRated
+    private var sortingParameters: SortingParameters = .popular
     
     // MARK: - UIView lifecycle methods
     override func loadView() {
@@ -26,11 +35,11 @@ final class MoviesListSceneViewController: BaseViewController<MoviesListSceneVie
         setupBindings()
         super.viewDidLoad()
         updateSnapshot()
+        selectViewState()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        title = Localization.popular
         contentView.setupNavBarButton(for: self)
     }
 }
@@ -43,6 +52,15 @@ private extension MoviesListSceneViewController {
             .receive(on: DispatchQueue.main)
             .sink { [unowned self] sections in
                 self.contentView.setupSnapshot(sections: sections)
+                title = sortingParameters.screenTitle
+            }
+            .store(in: &cancellables)
+    }
+    
+    func selectViewState() {
+        viewModel.$isMoviesEmpty
+            .sink { [unowned self] isMoviesEmpty in
+                contentView.selectViewState(isMoviesEmpty: isMoviesEmpty)
             }
             .store(in: &cancellables)
     }
@@ -53,7 +71,11 @@ private extension MoviesListSceneViewController {
             .sink { [unowned self] actions in
                 switch actions {
                 case .didReachedBottom:
-                    sortingParameters == .topRated ? viewModel.fetchTopRatedMovies() : viewModel.fetchPopularMovies()
+                    if !viewModel.isMoviesEmpty {
+                        sortingParameters == .topRated ? viewModel.fetchTopRatedMovies() : viewModel.fetchPopularMovies()
+                    } else {
+                        viewModel.resetToDefaultValues()
+                    }
                     
                 case .didSelectItem(let item):
                     switch item {
@@ -96,7 +118,7 @@ private extension MoviesListSceneViewController {
     }
     
     // MARK: - Action sheet setup
-    func showActionSheet(completion: @escaping () -> (Void)) {
+    func showActionSheet(completion: @escaping () -> Void) {
         let actionSheet = UIAlertController(
             title: nil,
             message: nil,
@@ -123,7 +145,7 @@ private extension MoviesListSceneViewController {
             }
         
         let cancelAction = UIAlertAction(
-            title: "Cancel",
+            title: Localization.cancel,
             style: .cancel)
         
         switch sortingParameters {
@@ -138,7 +160,7 @@ private extension MoviesListSceneViewController {
                 forKey: "checked")
         }
         
-        [topRatedAction, popularAction, cancelAction]
+        [popularAction, topRatedAction, cancelAction]
             .forEach { action in
                 actionSheet.addAction(action)
             }

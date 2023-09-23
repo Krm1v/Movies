@@ -49,10 +49,31 @@ private extension MainCoordinator {
         module.transitionPublisher
             .sink { [unowned self] transition in
                 switch transition {
-                case .backToMoviesList: pop()
+                case .backToMoviesList: 
+                    pop()
+                case .presentPosterDetailScene(let posterPath):
+                    openPosterDetailScene(posterPath: posterPath)
+                case .presentYoutubePlayerScene(let trailerKey):
+                    openYoutubePlayerScene(trailerKey: trailerKey)
                 }
             }
             .store(in: &cancellables)
         push(module.viewController)
+    }
+    
+    func openPosterDetailScene(posterPath: String) {
+        let module = PosterDetailSceneBuilder.build(container, posterPath: posterPath)
+        module.transitionPublisher
+            .sink { _ in }
+            .store(in: &cancellables)
+        presentScene(module.viewController)
+    }
+    
+    func openYoutubePlayerScene(trailerKey: MovieTrailerModel) {
+        let module = YoutubePlayerSceneBuilder.build(container: container, trailerKey: trailerKey)
+        module.transitionPublisher
+            .sink { _ in }
+            .store(in: &cancellables)
+        presentScene(module.viewController)
     }
 }

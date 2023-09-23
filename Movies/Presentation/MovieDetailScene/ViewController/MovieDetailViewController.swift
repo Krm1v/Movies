@@ -5,7 +5,7 @@
 //  Created by Владислав Баранкевич on 22.09.2023.
 //
 
-import Foundation
+import UIKit
 
 final class MovieDetailViewController: BaseViewController<MovieDetailViewModel> {
     // MARK: - Properties
@@ -30,9 +30,9 @@ private extension MovieDetailViewController {
             .sink { [unowned self] actions in
                 switch actions {
                 case .youtubeButtonDidTapped:
-                    debugPrint("Youtube")
+                    viewModel.openYoutubePlayerScene()
                 case .imageViewDidTapped:
-                    debugPrint("Image")
+                    viewModel.openPosterDetailScene()
                 }
             }
             .store(in: &cancellables)
@@ -42,7 +42,7 @@ private extension MovieDetailViewController {
         viewModel.$datasource
             .receive(on: DispatchQueue.main)
             .sink { [weak self] model in
-                guard 
+                guard
                     let self = self,
                     let model = model
                 else {

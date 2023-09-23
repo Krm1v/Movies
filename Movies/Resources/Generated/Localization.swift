@@ -12,6 +12,8 @@ import Foundation
 internal enum Localization {
   /// Cancel
   internal static let cancel = Localization.tr("Localizable", "cancel", fallback: "Cancel")
+  /// Close
+  internal static let close = Localization.tr("Localizable", "close", fallback: "Close")
   /// Error
   internal static let error = Localization.tr("Localizable", "error", fallback: "Error")
   /// OK

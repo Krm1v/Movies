@@ -15,7 +15,7 @@ struct MovieDetailResponseModel: Decodable {
     let genres: [Genres]
     let overview: String
     let voteAverage: Double
-    let video: Bool
+    let videos: VideoResponseModel?
 }
 
 extension MovieDetailResponseModel {
@@ -27,5 +27,3 @@ extension MovieDetailResponseModel {
         let name: String
     }
 }
-
-
