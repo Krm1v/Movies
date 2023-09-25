@@ -26,7 +26,7 @@ final class MoviesSceneView: BaseView {
     private(set) var searchBar = UISearchBar()
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let refreshControl = UIRefreshControl()
-    private let navBarButton = UIBarButtonItem()
+    private(set) var navBarButton = UIBarButtonItem()
     private let emptyDataLabel = UILabel()
     
     // MARK: - Properties
@@ -57,13 +57,6 @@ final class MoviesSceneView: BaseView {
             snapshot.appendItems(section.items, toSection: section.section)
         }
         datasource?.apply(snapshot, animatingDifferences: false)
-    }
-    
-    func setupNavBarButton(for controller: UIViewController) {
-        navBarButton.style = .plain
-        navBarButton.image = UIImage(systemName: "list.dash")
-        navBarButton.tintColor = .black
-        controller.navigationItem.rightBarButtonItem = navBarButton
     }
     
     func stopRefreshing() {

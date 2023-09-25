@@ -25,7 +25,7 @@ final class MoviesListSceneViewController: BaseViewController<MoviesListSceneVie
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        contentView.setupNavBarButton(for: self)
+        setupNavBarButton()
     }
 }
 
@@ -36,8 +36,8 @@ private extension MoviesListSceneViewController {
         viewModel.$sections
             .receive(on: DispatchQueue.main)
             .sink { [unowned self] sections in
+                self.contentView.setupSnapshot(sections: sections)
                 DispatchQueue.main.async {
-                    self.contentView.setupSnapshot(sections: sections)
                     self.title = self.viewModel.sortingParameters.screenTitle
                 }
             }
@@ -46,8 +46,11 @@ private extension MoviesListSceneViewController {
     
     func selectViewState() {
         viewModel.$isMoviesEmpty.combineLatest(viewModel.$isCachedMoviesEmpty)
-            .sink { [unowned self] isMoviesEmpty, isCachedMoviesEmpty in
-                contentView.selectViewState(isMoviesEmpty: isMoviesEmpty && isCachedMoviesEmpty)
+            .sink { [weak self] isMoviesEmpty, isCachedMoviesEmpty in
+                guard let self = self else {
+                    return
+                }
+                self.contentView.selectViewState(isMoviesEmpty: isMoviesEmpty && isCachedMoviesEmpty)
             }
             .store(in: &cancellables)
     }
@@ -141,5 +144,12 @@ private extension MoviesListSceneViewController {
                 actionSheet.addAction(action)
             }
         present(actionSheet, animated: true)
+    }
+    
+    func setupNavBarButton() {
+        contentView.navBarButton.style = .plain
+        contentView.navBarButton.image = UIImage(systemName: "list.dash")
+        contentView.navBarButton.tintColor = .black
+        self.navigationItem.rightBarButtonItem = contentView.navBarButton
     }
 }

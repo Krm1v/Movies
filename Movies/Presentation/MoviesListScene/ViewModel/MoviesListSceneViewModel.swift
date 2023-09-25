@@ -339,8 +339,8 @@ private extension MoviesListSceneViewModel {
                 guard let self = self else {
                     return
                 }
-                isMoviesEmpty = movies.isEmpty ? true : false
-                isCachedMoviesEmpty = cachedMovies.isEmpty ? true : false
+                self.isMoviesEmpty = movies.isEmpty ? true : false
+                self.isCachedMoviesEmpty = cachedMovies.isEmpty ? true : false
             }
             .store(in: &cancellables)
     }
@@ -354,7 +354,7 @@ private extension MoviesListSceneViewModel {
     }
     
     func searchMovieLocaly(movieTitle: String) {
-        resetToDefaultValues()
+        movies = []
         let cachedMovies = moviesCacheService.getCachedMovies()
         self.cachedMovies = cachedMovies.compactMap { $0 }
         
