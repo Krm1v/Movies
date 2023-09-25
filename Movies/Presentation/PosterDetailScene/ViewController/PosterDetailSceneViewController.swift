@@ -31,7 +31,7 @@ private extension PosterDetailSceneViewController {
         viewModel.$datasource
             .receive(on: DispatchQueue.main)
             .sink { [weak self] model in
-                guard 
+                guard
                     let self = self,
                     let model = model
                 else {

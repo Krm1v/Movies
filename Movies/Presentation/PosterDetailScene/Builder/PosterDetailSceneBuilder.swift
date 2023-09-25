@@ -13,6 +13,9 @@ final class PosterDetailSceneBuilder {
     static func build(_ container: AppContainer, posterPath: String) -> Module<PosterDetailSceneTransitions, UIViewController> {
         let viewModel = PosterDetailSceneViewModel(posterPath: posterPath)
         let viewController = PosterDetailSceneViewController(viewModel: viewModel)
-        return Module(viewController: viewController, transitionPublisher: viewModel.transitionPublisher)
+        
+        return Module(
+            viewController: viewController,
+            transitionPublisher: viewModel.transitionPublisher)
     }
 }

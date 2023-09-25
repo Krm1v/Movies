@@ -11,6 +11,7 @@ protocol AppContainer: AnyObject {
     var appConfiguration: AppConfiguration { get }
     var moviesNetworkService: MoviesNetworkService { get }
     var moviesService: MoviesService { get }
+    var moviesCacheService: MoviesCacheService { get }
 }
 
 final class AppContainerImpl: AppContainer {
@@ -18,6 +19,7 @@ final class AppContainerImpl: AppContainer {
     let appConfiguration: AppConfiguration
     let moviesNetworkService: MoviesNetworkService
     let moviesService: MoviesService
+    let moviesCacheService: MoviesCacheService
     
     // MARK: - Init
     init() {
@@ -36,5 +38,8 @@ final class AppContainerImpl: AppContainer {
         
         let moviesService = MoviesServiceImpl(moviesNetworkService: moviesNetworkService)
         self.moviesService = moviesService
+        
+        let moviesCacheService = MoviesCacheServiceImpl()
+        self.moviesCacheService = moviesCacheService
     }
 }

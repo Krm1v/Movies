@@ -9,6 +9,7 @@ import Foundation
 
 final class MovieDetail {
     // MARK: - Properties
+    let id: Int
     let posterPath: String
     let title: String
     let releaseDate: String
@@ -20,6 +21,7 @@ final class MovieDetail {
     
     // MARK: - Init
     init(
+        id: Int,
         posterPath: String,
         title: String,
         releaseDate: String,
@@ -29,6 +31,7 @@ final class MovieDetail {
         voteAverage: Double,
         video: String?
     ) {
+        self.id = id
         self.posterPath = posterPath
         self.title = title
         self.releaseDate = releaseDate
@@ -40,6 +43,7 @@ final class MovieDetail {
     }
     
     init(_ response: MovieDetailResponseModel) {
+        self.id = response.id
         self.posterPath = response.posterPath
         self.title = response.title
         self.releaseDate = response.releaseDate

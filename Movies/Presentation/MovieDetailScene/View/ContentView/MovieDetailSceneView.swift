@@ -146,6 +146,7 @@ private extension MovieDetailSceneView {
             for: .normal)
     }
     
+    // MARK: - StackViews setup method
     func setupStackViews() {
         mainStackView.setup(
             axis: .vertical,
@@ -178,19 +179,3 @@ private extension MovieDetailSceneView {
             .store(in: &cancellables)
     }
 }
-
-#if DEBUG
-// MARK: - SwiftUI preview
-import SwiftUI
-
-struct FlowProvider: PreviewProvider {
-    static var previews: some View {
-        UIViewControllerPreview {
-            let container = AppContainerImpl()
-            let vm = MovieDetailViewModel(movieId: 123, moviesService: container.moviesService)
-            let viewController = MovieDetailViewController(viewModel: vm)
-            return viewController
-        }
-    }
-}
-#endif

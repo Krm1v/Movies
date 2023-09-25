@@ -53,6 +53,7 @@ final class PosterDetailSceneView: BaseView {
 
 // MARK: - Private extension
 private extension PosterDetailSceneView {
+    // MARK: - Setup UI methods
     func setupUI() {
         backgroundColor = .white
         setupLayout()
@@ -87,6 +88,7 @@ private extension PosterDetailSceneView {
         closeButton.rounded(12)
     }
     
+    // MARK: - Actions
     func bindActions() {
         closeButton.tapPublisher
             .map { PosterDetailSceneActions.closeButtonDidTapped }

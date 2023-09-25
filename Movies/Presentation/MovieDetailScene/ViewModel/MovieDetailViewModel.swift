@@ -13,34 +13,27 @@ final class MovieDetailViewModel: BaseViewModel {
     private(set) lazy var transitionPublisher = transitionSubject.eraseToAnyPublisher()
     private let transitionSubject = PassthroughSubject<MovieDetailSceneTransitions, Never>()
     private let moviesService: MoviesService
-    private let movieId: Int
-    private var movie: MovieDetail?
+    private var movie: MovieDetail
     @Published var datasource: MovieDetailModel?
     
     // MARK: - Init
-    init(movieId: Int, moviesService: MoviesService) {
-        self.movieId = movieId
+    init(movie: MovieDetail, moviesService: MoviesService) {
+        self.movie = movie
         self.moviesService = moviesService
     }
     
     // MARK: - Overriden methods
-    override func onViewDidLoad() {
-        fetchMovieDetailsRequest(movieId: movieId)
+    override func onViewWillAppear() {
+        updateDatasource()
     }
     
     // MARK: - Public methods
     func openPosterDetailScene() {
-        guard let posterPath = movie?.posterPath else {
-            return
-        }
-        transitionSubject.send(.presentPosterDetailScene(posterPath: posterPath))
+        transitionSubject.send(.presentPosterDetailScene(posterPath: movie.posterPath))
     }
     
     func openYoutubePlayerScene() {
-        guard let trailerKey = movie?.video else {
-            return
-        }
-        let movieTrailerModel = MovieTrailerModel(key: trailerKey)
+        let movieTrailerModel = MovieTrailerModel(key: movie.video ?? "")
         transitionSubject.send(.presentYoutubePlayerScene(trailerKey: movieTrailerModel))
     }
 }
@@ -48,35 +41,6 @@ final class MovieDetailViewModel: BaseViewModel {
 // MARK: - Private extension
 private extension MovieDetailViewModel {
     func updateDatasource() {
-        guard let movie = movie else {
-            return
-        }
         datasource = .init(movie)
-    }
-    
-    // MARK: - Network requests calling
-    func fetchMovieDetailsRequest(movieId: Int) {
-        moviesService.fetchMovieDetails(movieId: movieId)
-            .subscribe(on: DispatchQueue.global())
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                guard let self = self else {
-                    return
-                }
-                switch completion {
-                case .finished:
-                    Logger.info("Details fetched")
-                    self.updateDatasource()
-                case .failure(let error):
-                    Logger.error(error.localizedDescription)
-                    errorSubject.send(error)
-                }
-            } receiveValue: { [weak self] movie in
-                guard let self = self else {
-                    return
-                }
-                self.movie = movie
-            }
-            .store(in: &cancellables)
     }
 }

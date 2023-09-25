@@ -12,53 +12,100 @@ final class MoviesListSceneViewModel: BaseViewModel {
     // MARK: - Typealiases
     typealias MoviesSectionModel = SectionModel<MoviesListSceneSections, MoviesListSceneItems>
     
+    enum MoviesSortingParameters {
+        case topRated
+        case popular
+        
+        var screenTitle: String {
+            switch self {
+            case .topRated:
+                return Localization.topRated
+            case .popular:
+                return Localization.popularMovies
+            }
+        }
+    }
+    
     // MARK: - Properties
     private(set) lazy var transitionPublisher = transitionSubject.eraseToAnyPublisher()
     private let transitionSubject = PassthroughSubject<MoviesListSceneTransitions, Never>()
     private let moviesService: MoviesService
+    private let networkConnectionManager: NetworkConnectionManager
+    private let moviesCacheService: MoviesCacheService
     private var pageCount = 1
+    private var movie: MovieDetail?
+    private var isInternetAvailable = true
+    var sortingParameters: MoviesSortingParameters = .popular
     
     // MARK: - Published properties
+    @Published private var cachedMovies: [Movie] = []
     @Published private var movies: [Movie] = []
     @Published var sections: [MoviesSectionModel] = []
     @Published private var genres: [Genre] = []
     @Published var isRefreshing = false
     @Published var isMoviesEmpty = true
+    @Published var isCachedMoviesEmpty = true
     
     // MARK: - Init
-    init(moviesService: MoviesService) {
+    init(
+        moviesService: MoviesService,
+        networkConnectionManager: NetworkConnectionManager = NetworkConnectionManagerImpl.shared,
+        moviesCacheService: MoviesCacheService
+    ) {
         self.moviesService = moviesService
+        self.networkConnectionManager = networkConnectionManager
+        self.moviesCacheService = moviesCacheService
     }
     
     // MARK: - Overriden methods
     override func onViewDidLoad() {
         checkMoviesList()
-        $genres
-            .sink { [weak self] _ in
+        networkConnectionManager.isInternetAvailablePublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isAvailable in
                 guard let self = self else {
                     return
                 }
-                self.fetchPopularMovies()
+                self.isInternetAvailable = isAvailable
+                if !isAvailable {
+                    sendNoConnectionErrorAlert()
+                } 
             }
             .store(in: &cancellables)
+        
         fetchGenresRequest()
-    }
-    
-    override func onViewWillAppear() {
-        updateDatasource()
     }
     
     // MARK: - Public methods
     func fetchTopRatedMovies() {
-        fetchTopRatedMoviesRequest()
+        checkNetworkConnection { [weak self] in
+            guard let self = self else {
+                return
+            }
+            self.fetchTopRatedMoviesRequest()
+        }
     }
     
     func fetchPopularMovies() {
-        fetchPopularMoviesRequest()
+        checkNetworkConnection { [weak self] in
+            guard let self = self else {
+                return
+            }
+            self.fetchPopularMoviesRequest()
+        }
     }
     
     func searchMovie(movieTitle: String) {
-        searchMovieRequest(movieTitle: movieTitle)
+        if isInternetAvailable {
+            if !movieTitle.isEmpty {
+                searchMovieRequest(movieTitle: movieTitle)
+            } else {
+                resetToDefaultValues()
+                sortingParameters == .topRated ? fetchTopRatedMovies() : fetchPopularMovies()
+            }
+        } else {
+            searchMovieLocaly(movieTitle: movieTitle)
+        }
     }
     
     func resetToDefaultValues() {
@@ -67,7 +114,42 @@ final class MoviesListSceneViewModel: BaseViewModel {
     }
     
     func openDetailScene(with movieId: Int) {
-        transitionSubject.send(.openDetail(movieId: movieId))
+        checkNetworkConnection { [weak self] in
+            guard let self = self else {
+                return
+            }
+            self.fetchMovieDetailsRequest(movieId: movieId)
+        }
+    }
+    
+    func refreshMovies(
+        isRefreshing: Bool,
+        completion: @escaping () -> Void
+    ) {
+        if isInternetAvailable {
+            if isRefreshing {
+                resetToDefaultValues()
+                sortingParameters == .topRated ? fetchTopRatedMovies() : fetchPopularMovies()
+                if !self.isRefreshing {
+                    completion()
+                }
+            } else {
+                self.isRefreshing = isRefreshing
+            }
+        } else {
+            completion()
+            sendNoConnectionErrorAlert()
+        }
+    }
+    
+    func tableViewDidReachedBottom() {
+        if isInternetAvailable {
+            if !isMoviesEmpty {
+                sortingParameters == .topRated ? fetchTopRatedMovies() : fetchPopularMovies()
+            } else {
+                resetToDefaultValues()
+            }
+        }
     }
 }
 
@@ -77,7 +159,9 @@ private extension MoviesListSceneViewModel {
     func updateDatasource() {
         let genreDictionary = Dictionary(uniqueKeysWithValues: genres.map { ($0.id, $0.name) })
         
-        let movieCellModel = movies.map { movie in
+        let moviesSource = isInternetAvailable ? movies : cachedMovies
+        
+        let movieCellModel = moviesSource.map { movie in
             var movieModel = MoviesListSceneCellModel(movie)
             let movieGenres = movie.genres.map { genreId in
                 return genreDictionary[genreId] ?? ""
@@ -93,7 +177,9 @@ private extension MoviesListSceneViewModel {
                 .movie(model)
         })
         
-        sections = [mainSection]
+        if !genres.isEmpty {
+            sections = [mainSection]
+        }
     }
     
     // MARK: - Network requests calling
@@ -110,11 +196,10 @@ private extension MoviesListSceneViewModel {
                 case .finished:
                     Logger.info("Movies fetched")
                     self.updateDatasource()
-                    if !isRefreshing {
-                        self.pageCount += 1
-                    }
+                    addPage()
                 case .failure(let error):
                     errorSubject.send(error)
+                    isLoadingSubject.send(false)
                     Logger.error(error.localizedDescription)
                 }
             } receiveValue: { [weak self] movies in
@@ -122,6 +207,7 @@ private extension MoviesListSceneViewModel {
                     return
                 }
                 self.movies.append(contentsOf: movies)
+                self.moviesCacheService.cacheMovies(movies: movies)
                 isLoadingSubject.send(false)
                 isRefreshing = false
             }
@@ -141,18 +227,18 @@ private extension MoviesListSceneViewModel {
                 case .finished:
                     Logger.info("Finished")
                     self.updateDatasource()
-                    if !isRefreshing {
-                        self.pageCount += 1
-                    }
+                    addPage()
                 case .failure(let error):
                     Logger.error(error.localizedDescription)
                     errorSubject.send(error)
+                    isLoadingSubject.send(false)
                 }
             } receiveValue: { [weak self] movies in
                 guard let self = self else {
                     return
                 }
                 self.movies.append(contentsOf: movies)
+                self.moviesCacheService.cacheMovies(movies: movies)
                 isLoadingSubject.send(false)
                 isRefreshing = false
             }
@@ -175,13 +261,13 @@ private extension MoviesListSceneViewModel {
                 case .failure(let error):
                     Logger.error(error.localizedDescription)
                     errorSubject.send(error)
+                    isLoadingSubject.send(false)
                 }
             } receiveValue: { [weak self] movies in
                 guard let self = self else {
                     return
                 }
                 self.movies = movies
-                debugPrint(self.movies.count)
                 isLoadingSubject.send(false)
             }
             .store(in: &cancellables)
@@ -199,9 +285,11 @@ private extension MoviesListSceneViewModel {
                 switch completion {
                 case .finished:
                     Logger.info("Genres fetched")
+                    self.fetchPopularMovies()
                 case .failure(let error):
                     Logger.error(error.localizedDescription)
                     errorSubject.send(error)
+                    isLoadingSubject.send(false)
                 }
             } receiveValue: { [weak self] genres in
                 guard let self = self else {
@@ -213,15 +301,77 @@ private extension MoviesListSceneViewModel {
             .store(in: &cancellables)
     }
     
+    func fetchMovieDetailsRequest(movieId: Int) {
+        isLoadingSubject.send(true)
+        moviesService.fetchMovieDetails(movieId: movieId)
+            .subscribe(on: DispatchQueue.global())
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                guard let self = self else {
+                    return
+                }
+                switch completion {
+                case .finished:
+                    Logger.info("Details fetched")
+                    guard let movie = movie else {
+                        return
+                    }
+                    transitionSubject.send(.openDetail(movie: movie))
+                case .failure(let error):
+                    Logger.error(error.localizedDescription)
+                    errorSubject.send(error)
+                    isLoadingSubject.send(false)
+                }
+            } receiveValue: { [weak self] movie in
+                guard let self = self else {
+                    return
+                }
+                self.movie = movie
+                isLoadingSubject.send(false)
+            }
+            .store(in: &cancellables)
+    }
+    
+    // MARK: - Helper methods
     func checkMoviesList() {
-        $movies
-            .sink { [weak self] movies in
+        $movies.combineLatest($cachedMovies)
+            .sink { [weak self] movies, cachedMovies in
                 guard let self = self else {
                     return
                 }
                 isMoviesEmpty = movies.isEmpty ? true : false
-                debugPrint("IsMoviesEmpty: \(isMoviesEmpty)")
+                isCachedMoviesEmpty = cachedMovies.isEmpty ? true : false
             }
             .store(in: &cancellables)
+    }
+    
+    func checkNetworkConnection(completion: @escaping () -> Void) {
+        if isInternetAvailable {
+            completion()
+        } else {
+            sendNoConnectionErrorAlert()
+        }
+    }
+    
+    func searchMovieLocaly(movieTitle: String) {
+        resetToDefaultValues()
+        let cachedMovies = moviesCacheService.getCachedMovies()
+        self.cachedMovies = cachedMovies.compactMap { $0 }
+        
+        if !movieTitle.isEmpty {
+            self.cachedMovies = self.cachedMovies.filter { $0.title.contains(movieTitle) }
+        }
+        updateDatasource()
+    }
+    
+    func sendNoConnectionErrorAlert() {
+        networkConnectionSubject.send(
+            (Localization.error, NetworkConnectionErrorMessages.noConnection.description))
+    }
+    
+    func addPage() {
+        if !isRefreshing {
+            self.pageCount += 1
+        }
     }
 }

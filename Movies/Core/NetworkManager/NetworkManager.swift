@@ -13,7 +13,7 @@ protocol Requestable: AnyObject {
 }
 
 final class NetworkManager: Requestable {
-    // MARK: - Init
+    // MARK: - Properties
     let session: URLSession
     
     // MARK: - Init
@@ -36,7 +36,7 @@ final class NetworkManager: Requestable {
                     return Fail(error: NetworkError.unexpectedError)
                         .eraseToAnyPublisher()
                 }
-//                Logger.log(output)
+                //                Logger.log(output)
                 return self.handleError(output)
             }
             .eraseToAnyPublisher()
@@ -82,6 +82,7 @@ private extension NetworkManager {
             return .redirectError
         case NSURLErrorResourceUnavailable:
             return .resourceUnavailable
+            
         default: return .unexpectedError
         }
     }

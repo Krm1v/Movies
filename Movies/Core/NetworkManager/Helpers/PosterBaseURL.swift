@@ -11,6 +11,7 @@ enum PosterBaseUrl {
     case original(path: String)
     case w500(path: String)
     
+    // MARK: - Properties
     var url: URL? {
         switch self {
         case .original(let path):

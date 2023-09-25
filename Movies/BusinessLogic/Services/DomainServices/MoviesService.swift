@@ -37,7 +37,7 @@ final class MoviesServiceImpl {
             .map({ response in
                 response.results.map { Movie.init($0) }
             })
-            
+        
             .eraseToAnyPublisher()
     }
     

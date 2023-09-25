@@ -26,7 +26,7 @@ struct MoviesListSceneCellModel: Hashable, Identifiable {
     
     // MARK: - Init
     init(_ movie: Movie) {
-        self.movieId = movie.id
+        self.movieId = movie.movieId
         self.poster = movie.poster
         self.movieTitle = movie.title
         self.movieReleaseDate = String(movie.releaseDate.prefix(4))

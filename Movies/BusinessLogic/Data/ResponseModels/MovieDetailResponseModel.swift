@@ -8,6 +8,7 @@
 import Foundation
 
 struct MovieDetailResponseModel: Decodable {
+    let id: Int
     let posterPath: String
     let title: String
     let releaseDate: String

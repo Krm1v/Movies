@@ -13,28 +13,28 @@ class BaseViewController<VM: ViewModel>: UIViewController {
     private let notificationFeedbackGenerator = UINotificationFeedbackGenerator()
     var viewModel: VM
     var cancellables = Set<AnyCancellable>()
-
+    
     // MARK: - Init
     init(viewModel: VM) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     // MARK: - UIView lifecycle methods
     override func viewDidLoad() {
         super.viewDidLoad()
         viewModel.onViewDidLoad()
-
+        
         viewModel.isLoadingPublisher
             .sink { [weak self] isLoading in
                 isLoading ? self?.showLoadingView() : self?.hideLoadingView()
             }
             .store(in: &cancellables)
-
+        
         viewModel.errorPublisher
             .sink { [weak self] error in
                 guard let self = self else {
@@ -47,28 +47,42 @@ class BaseViewController<VM: ViewModel>: UIViewController {
                                   actionTitle: Localization.ok)
             }
             .store(in: &cancellables)
+        
+        viewModel.networkConnectionPublisher
+            .sink { [weak self] (title, message) in
+                guard let self = self else {
+                    return
+                }
+                notificationFeedbackGenerator.prepare()
+                notificationFeedbackGenerator.notificationOccurred(.error)
+                self.presentAlert(
+                    title: title,
+                    message: message,
+                    actionTitle: Localization.ok)
+            }
+            .store(in: &cancellables)
     }
-
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         viewModel.onViewWillAppear()
     }
-
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         viewModel.onViewDidAppear()
     }
-
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         viewModel.onViewWillDisappear()
     }
-
+    
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         viewModel.onViewDidDisappear()
     }
-
+    
     // MARK: - Public methods
     func showLoadingView() {
         let windowView = UIApplication.shared.windows.first(where: { $0.isKeyWindow })
@@ -80,12 +94,12 @@ class BaseViewController<VM: ViewModel>: UIViewController {
             loadingView.isLoading = true
         }
     }
-
+    
     func hideLoadingView() {
         let windowView = UIApplication.shared.windows.first(where: { $0.isKeyWindow })
         windowView?.viewWithTag(LoadingView.tagValue)?.removeFromSuperview()
     }
-
+    
     // MARK: - Deinit
     deinit {
         debugPrint("deinit of ", String(describing: self))

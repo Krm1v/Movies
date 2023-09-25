@@ -19,20 +19,20 @@ extension UIStackView {
         self.distribution = distribution
         self.spacing = spacing
     }
-
+    
     func removeAllViews() {
         arrangedSubviews.forEach {
             removeArrangedSubview($0)
             $0.removeFromSuperview()
         }
     }
-
+    
     func addSpacer(_ size: CGFloat? = nil) {
         let spacer = UIView()
         spacer.backgroundColor = .clear
         addArranged(spacer, size: size)
     }
-
+    
     func addArranged(_ view: UIView, size: CGFloat? = nil) {
         addArrangedSubview(view)
         guard let size = size else {
@@ -44,7 +44,7 @@ extension UIStackView {
         default: return
         }
     }
-
+    
     func addCentered(_ view: UIView, inset: CGFloat, size: CGFloat? = nil) {
         let stack = UIStackView()
         switch axis {

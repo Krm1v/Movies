@@ -14,7 +14,7 @@ extension UIView {
         other.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate(constraints)
     }
-
+    
     func addSubview(
         _ other: UIView,
         withEdgeInsets edgeInsets: UIEdgeInsets,
@@ -55,7 +55,7 @@ extension UIView {
             }
         }
     }
-
+    
     func constraints(
         for view: UIView,
         by edgeInsets: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
@@ -67,7 +67,7 @@ extension UIView {
             view.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -edgeInsets.bottom)
         ]
     }
-
+    
     func constraintsToSafeArea(
         for view: UIView,
         by edgeInsets: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
@@ -79,7 +79,7 @@ extension UIView {
             view.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -edgeInsets.bottom)
         ]
     }
-
+    
     func centerConstrains(
         for view: UIView,
         offsetX: CGFloat = 0,
@@ -90,14 +90,14 @@ extension UIView {
             view.centerXAnchor.constraint(equalTo: centerXAnchor, constant: offsetX)
         ]
     }
-
+    
     func addSubviewToCenter(_ other: UIView) {
         addSubview(other, constraints: [
             other.centerYAnchor.constraint(equalTo: centerYAnchor),
             other.centerXAnchor.constraint(equalTo: centerXAnchor)
         ])
     }
-
+    
     func addSubviewToCenter(_ other: UIView, width: CGFloat, height: CGFloat) {
         addSubview(other, constraints: [
             other.centerYAnchor.constraint(equalTo: centerYAnchor),
@@ -106,7 +106,7 @@ extension UIView {
             other.widthAnchor.constraint(equalToConstant: width)
         ])
     }
-
+    
     func insertSubview(
         _ other: UIView,
         belowSubview: UIView,
@@ -126,7 +126,7 @@ extension UIView {
         other.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate(constraints)
     }
-
+    
     func insertSubview(_ other: UIView, index: Int, constraints: [NSLayoutConstraint]) {
         insertSubview(other, at: index)
         other.translatesAutoresizingMaskIntoConstraints = false

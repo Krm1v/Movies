@@ -61,7 +61,7 @@ private extension MovieCell {
         posterImageView.addShadow()
         posterImageView.contentMode = .scaleToFill
         titleLabel.font = .systemFont(ofSize: 25, weight: .semibold)
-        titleLabel.numberOfLines = 0
+        titleLabel.numberOfLines = .zero
         
         [titleLabel, ratingLabel, genresLabel].forEach { label in
             label.textColor = .white
@@ -75,7 +75,7 @@ private extension MovieCell {
             label.textColor = .white
         }
         
-        genresLabel.numberOfLines = 0
+        genresLabel.numberOfLines = .zero
         genresLabel.minimumScaleFactor = 0.8
         selectionStyle = .none
     }

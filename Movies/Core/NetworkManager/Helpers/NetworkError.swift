@@ -16,9 +16,9 @@ enum RequestBuilderError: Error {
 extension RequestBuilderError: LocalizedError {
     var requestErrorDescription: String? {
         switch self {
-        case .encodingError:    return "Error occured during data encoding."
-        case .badURL:           return "Bad URL error occured."
-        case .badURLComponents: return "Bad URL components error occured."
+        case .encodingError:    return Localization.encodingErrorDescription
+        case .badURL:           return Localization.badUrlErrorDescription
+        case .badURLComponents: return Localization.badUrlComponentsErrorDesc
         }
     }
 }
@@ -33,7 +33,6 @@ enum NetworkError: Error {
     case hostError
     case redirectError
     case resourceUnavailable
-    case tokenError
     case requestError(RequestBuilderError)
     case noResponse
 }
@@ -41,30 +40,17 @@ enum NetworkError: Error {
 extension NetworkError: LocalizedError {
     var errorDescription: String? {
         switch self {
-        case .clientError:
-            return "An error occured on the client side. Please, try again later"
-        case .serverError:
-            return "An error occured on the server side. Please, try again later"
-        case .dataDecodingError:
-            return "An error occured during data decoding. Please, try again later."
-        case .unexpectedError:
-            return "Oops! Something went wrong. Unexpected error occured. Please, try again later."
-        case .badURLError:
-            return "Bad URL error occured. Please, try again later."
-        case .timeOutError:
-            return "Timeout error occured. Check your Internet connection or try again later."
-        case .hostError:
-            return "Host error occured. Please, try again later."
-        case .redirectError:
-            return "Redirect error occured. Please, try again later."
-        case .resourceUnavailable:
-            return "The resource is currently unavailable. Please, try again later."
-        case .tokenError:
-            return "Token error occured. Please, try again later."
-        case .requestError(let error):
-            return error.requestErrorDescription
-        case .noResponse:
-            return "There are no response from the server. Please, try again later."
+        case .clientError:              return Localization.clientErrorDesc
+        case .serverError:              return Localization.serverErrorDesc
+        case .dataDecodingError:        return Localization.dataDecodingErrorDesc
+        case .unexpectedError:          return Localization.unexpectedErrorDesc
+        case .badURLError:              return Localization.badUrlErrorDescription
+        case .timeOutError:             return Localization.timeoutErrorDesc
+        case .hostError:                return Localization.hostErrorDesc
+        case .redirectError:            return Localization.redirectErrorDesc
+        case .resourceUnavailable:      return Localization.resourceUnavailableErrorDesc
+        case .requestError(let error):  return error.requestErrorDescription
+        case .noResponse:               return Localization.noResponseErrorDesc
         }
     }
 }

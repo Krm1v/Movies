@@ -16,13 +16,13 @@ final class MainCoordinator: Coordinator {
     private(set) lazy var didFinishPublisher = didFinishSubject.eraseToAnyPublisher()
     private let didFinishSubject = PassthroughSubject<Void, Never>()
     private var cancellables = Set<AnyCancellable>()
-
+    
     // MARK: - Init
     init(navigationController: UINavigationController, container: AppContainer) {
         self.navigationController = navigationController
         self.container = container
     }
-
+    
     // MARK: - Public methods
     func start() {
         startMoviesListScene()
@@ -36,20 +36,20 @@ private extension MainCoordinator {
         module.transitionPublisher
             .sink { [unowned self] transition in
                 switch transition {
-                case .openDetail(let movieId):
-                    openDetailScene(movieId: movieId)
+                case .openDetail(let movie):
+                    openDetailScene(movie: movie)
                 }
             }
             .store(in: &cancellables)
         setRoot([module.viewController])
     }
     
-    func openDetailScene(movieId: Int) {
-        let module = MovieDetailSceneBuilder.build(container, movieId: movieId)
+    func openDetailScene(movie: MovieDetail) {
+        let module = MovieDetailSceneBuilder.build(container, movie: movie)
         module.transitionPublisher
             .sink { [unowned self] transition in
                 switch transition {
-                case .backToMoviesList: 
+                case .backToMoviesList:
                     pop()
                 case .presentPosterDetailScene(let posterPath):
                     openPosterDetailScene(posterPath: posterPath)
@@ -62,7 +62,10 @@ private extension MainCoordinator {
     }
     
     func openPosterDetailScene(posterPath: String) {
-        let module = PosterDetailSceneBuilder.build(container, posterPath: posterPath)
+        let module = PosterDetailSceneBuilder.build(
+            container,
+            posterPath: posterPath)
+        
         module.transitionPublisher
             .sink { _ in }
             .store(in: &cancellables)
@@ -70,7 +73,10 @@ private extension MainCoordinator {
     }
     
     func openYoutubePlayerScene(trailerKey: MovieTrailerModel) {
-        let module = YoutubePlayerSceneBuilder.build(container: container, trailerKey: trailerKey)
+        let module = YoutubePlayerSceneBuilder.build(
+            container: container,
+            trailerKey: trailerKey)
+        
         module.transitionPublisher
             .sink { _ in }
             .store(in: &cancellables)

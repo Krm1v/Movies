@@ -9,7 +9,7 @@ import Foundation
 
 final class Movie {
     // MARK: - Properties
-    let id: Int
+    let movieId: Int
     let poster: String
     let title: String
     let releaseDate: String
@@ -19,7 +19,7 @@ final class Movie {
     
     // MARK: - Init
     init(
-        id: Int,
+        movieId: Int,
         poster: String,
         title: String,
         releaseDate: String,
@@ -27,7 +27,7 @@ final class Movie {
         overview: String,
         averageRating: Double
     ) {
-        self.id = id
+        self.movieId = movieId
         self.poster = poster
         self.title = title
         self.releaseDate = releaseDate
@@ -37,7 +37,7 @@ final class Movie {
     }
     
     init(_ response: MovieResponse) {
-        self.id = response.id
+        self.movieId = response.id
         self.poster = response.posterPath ?? ""
         self.title = response.title
         self.releaseDate = response.releaseDate ?? ""

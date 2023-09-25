@@ -8,23 +8,8 @@
 import UIKit
 
 final class MoviesListSceneViewController: BaseViewController<MoviesListSceneViewModel> {
-    fileprivate enum SortingParameters {
-        case topRated
-        case popular
-        
-        var screenTitle: String {
-            switch self {
-            case .topRated:
-                return Localization.topRated
-            case .popular:
-                return Localization.popularMovies
-            }
-        }
-    }
-    
     // MARK: - Properties
     private let contentView = MoviesSceneView()
-    private var sortingParameters: SortingParameters = .popular
     
     // MARK: - UIView lifecycle methods
     override func loadView() {
@@ -51,16 +36,18 @@ private extension MoviesListSceneViewController {
         viewModel.$sections
             .receive(on: DispatchQueue.main)
             .sink { [unowned self] sections in
-                self.contentView.setupSnapshot(sections: sections)
-                title = sortingParameters.screenTitle
+                DispatchQueue.main.async {
+                    self.contentView.setupSnapshot(sections: sections)
+                    self.title = self.viewModel.sortingParameters.screenTitle
+                }
             }
             .store(in: &cancellables)
     }
     
     func selectViewState() {
-        viewModel.$isMoviesEmpty
-            .sink { [unowned self] isMoviesEmpty in
-                contentView.selectViewState(isMoviesEmpty: isMoviesEmpty)
+        viewModel.$isMoviesEmpty.combineLatest(viewModel.$isCachedMoviesEmpty)
+            .sink { [unowned self] isMoviesEmpty, isCachedMoviesEmpty in
+                contentView.selectViewState(isMoviesEmpty: isMoviesEmpty && isCachedMoviesEmpty)
             }
             .store(in: &cancellables)
     }
@@ -71,11 +58,7 @@ private extension MoviesListSceneViewController {
             .sink { [unowned self] actions in
                 switch actions {
                 case .didReachedBottom:
-                    if !viewModel.isMoviesEmpty {
-                        sortingParameters == .topRated ? viewModel.fetchTopRatedMovies() : viewModel.fetchPopularMovies()
-                    } else {
-                        viewModel.resetToDefaultValues()
-                    }
+                    viewModel.tableViewDidReachedBottom()
                     
                 case .didSelectItem(let item):
                     switch item {
@@ -84,14 +67,12 @@ private extension MoviesListSceneViewController {
                     }
                     
                 case .refreshControlDidRefresh(let isRefreshing):
-                    if isRefreshing {
-                        viewModel.resetToDefaultValues()
-                        sortingParameters == .topRated ? viewModel.fetchTopRatedMovies() : viewModel.fetchPopularMovies()
-                        if !viewModel.isRefreshing {
-                            contentView.stopRefreshing()
+                    viewModel.refreshMovies(
+                        isRefreshing: isRefreshing) { [weak self] in
+                        guard let self = self else {
+                            return
                         }
-                    } else {
-                        viewModel.isRefreshing = isRefreshing
+                            self.contentView.stopRefreshing()
                     }
                     
                 case .filterButtonDidTapped:
@@ -100,15 +81,10 @@ private extension MoviesListSceneViewController {
                             return
                         }
                         viewModel.resetToDefaultValues()
-                        sortingParameters == .topRated ? viewModel.fetchTopRatedMovies() : viewModel.fetchPopularMovies()
+                        viewModel.sortingParameters == .topRated ? viewModel.fetchTopRatedMovies() : viewModel.fetchPopularMovies()
                     }
                 case .searchBarTextDidChanged(let text):
-                    if !text.isEmpty {
-                        viewModel.searchMovie(movieTitle: text)
-                    } else {
-                        viewModel.resetToDefaultValues()
-                        sortingParameters == .topRated ? viewModel.fetchTopRatedMovies() : viewModel.fetchPopularMovies()
-                    }
+                    viewModel.searchMovie(movieTitle: text)
                     
                 case .searchBarButtonTapped:
                     contentView.endEditing(true)
@@ -130,7 +106,7 @@ private extension MoviesListSceneViewController {
                 guard let self = self else {
                     return
                 }
-                self.sortingParameters = .topRated
+                viewModel.sortingParameters = .topRated
                 completion()
             }
         
@@ -140,7 +116,7 @@ private extension MoviesListSceneViewController {
                 guard let self = self else {
                     return
                 }
-                self.sortingParameters = .popular
+                viewModel.sortingParameters = .popular
                 completion()
             }
         
@@ -148,7 +124,7 @@ private extension MoviesListSceneViewController {
             title: Localization.cancel,
             style: .cancel)
         
-        switch sortingParameters {
+        switch viewModel.sortingParameters {
         case .topRated:
             topRatedAction.setValue(
                 true,

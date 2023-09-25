@@ -23,7 +23,7 @@ final class AppCoordinator: Coordinator {
         window: UIWindow,
         navigationController: UINavigationController = UINavigationController(),
         container: AppContainer
-        ) {
+    ) {
         self.window = window
         self.navigationController = navigationController
         self.container = container

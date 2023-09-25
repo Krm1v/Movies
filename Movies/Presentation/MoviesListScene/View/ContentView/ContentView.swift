@@ -67,7 +67,14 @@ final class MoviesSceneView: BaseView {
     }
     
     func stopRefreshing() {
-        refreshControl.endRefreshing()
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else {
+                return
+            }
+            self.tableView.beginUpdates()
+            self.refreshControl.endRefreshing()
+            self.tableView.endUpdates()
+        }
     }
     
     func selectViewState(isMoviesEmpty: Bool) {
@@ -77,12 +84,13 @@ final class MoviesSceneView: BaseView {
     // MARK: - Overriden methods
     override func layoutSubviews() {
         super.layoutSubviews()
-        tableView.rowHeight = self.frame.width * 1.2
+        tableView.rowHeight = self.frame.width * Constants.rowHeightMultiplier
     }
 }
 
 // MARK: - Private extension
 private extension MoviesSceneView {
+    // MARK: - UI setup
     func setupUI() {
         backgroundColor = .white
         searchBar.placeholder = Localization.search
@@ -92,8 +100,10 @@ private extension MoviesSceneView {
         tableView.refreshControl = refreshControl
         tableView.keyboardDismissMode = .onDrag
         tableView.separatorStyle = .none
-        emptyDataLabel.text = "No results"
-        emptyDataLabel.font = .systemFont(ofSize: 20, weight: .regular)
+        emptyDataLabel.text = Localization.noResults
+        emptyDataLabel.font = .systemFont(
+            ofSize: Constants.defaultSystemFont,
+            weight: .regular)
     }
     
     func setupLayout() {
@@ -115,11 +125,13 @@ private extension MoviesSceneView {
         ])
     }
     
+    // MARK: - TableView setup
     func setupTableView() {
         tableView.register(MovieCell.self, forCellReuseIdentifier: MovieCell.reuseID)
         setupDatasource()
     }
     
+    // MARK: - Datasource setup
     func setupDatasource() {
         datasource = .init(tableView: tableView, cellProvider: { [weak self] (tableView, indexPath, item) -> UITableViewCell? in
             guard let self = self else {
@@ -137,6 +149,7 @@ private extension MoviesSceneView {
         })
     }
     
+    // MARK: - Actions
     func bindActions() {
         tableView.reachedBottomPublisher()
             .map { MovieSceneActions.didReachedBottom }
@@ -171,4 +184,10 @@ private extension MoviesSceneView {
             .subscribe(actionSubject)
             .store(in: &cancellables)
     }
+}
+
+// MARK: - Constants
+fileprivate enum Constants {
+    static let rowHeightMultiplier: CGFloat = 1.2
+    static let defaultSystemFont: CGFloat = 20
 }

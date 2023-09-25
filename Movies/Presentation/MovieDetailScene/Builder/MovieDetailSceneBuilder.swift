@@ -14,9 +14,12 @@ enum MovieDetailSceneTransitions: Transition {
 }
 
 final class MovieDetailSceneBuilder {
-    static func build(_ container: AppContainer, movieId: Int) -> Module<MovieDetailSceneTransitions, UIViewController> {
-        let viewModel = MovieDetailViewModel(movieId: movieId, moviesService: container.moviesService)
+    static func build(_ container: AppContainer, movie: MovieDetail) -> Module<MovieDetailSceneTransitions, UIViewController> {
+        let viewModel = MovieDetailViewModel(movie: movie, moviesService: container.moviesService)
         let viewController = MovieDetailViewController(viewModel: viewModel)
-        return Module(viewController: viewController, transitionPublisher: viewModel.transitionPublisher)
+        
+        return Module(
+            viewController: viewController,
+            transitionPublisher: viewModel.transitionPublisher)
     }
 }
