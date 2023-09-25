@@ -1,0 +1,32 @@
+/* 
+  Localizable.strings
+  Movies
+
+  Created by Владислав Баранкевич on 20.09.2023.
+  
+*/
+
+"popular-movies" = "Popular movies";
+"top-rated-movies" = "Top rated movies";
+"error" = "Error";
+"ok" = "OK";
+"search" = "Search";
+"top-rated" = "Top rated";
+"popular" = "Popular";
+"cancel" = "Cancel";
+"rating" = "Rating";
+"close" = "Close";
+"encoding-error-description" = "Error occured during data encoding.";
+"bad-url-error-description" = "Bad URL error occured";
+"bad-url-components-error-desc" = "Bad URL components error occured.";
+"client-error-desc" = "An error occured on the client side. Please, try again later";
+"server-error-desc" = "An error occured on the server side. Please, try again later";
+"data-decoding-error-desc" = "An error occured during data decoding. Please, try again later.";
+"unexpected-error-desc" = "Oops! Something went wrong. Unexpected error occured. Please, try again later.";
+"timeout-error-desc" = "Timeout error occured. Check your Internet connection or try again later.";
+"host-error-desc" = "Host error occured. Please, try again later.";
+"redirect-error-desc" = "Redirect error occured. Please, try again later.";
+"resource-unavailable-error-desc" = "The resource is currently unavailable. Please, try again later.";
+"no-response-error-desc" = "There are no response from the server. Please, try again later.";
+"no-internet-connection-error-desc" = "You are offline. Please, enable your Wi-Fi or connect using cellular data.";
+"no-results" = "No results";
