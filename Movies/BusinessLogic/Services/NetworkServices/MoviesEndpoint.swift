@@ -40,19 +40,19 @@ enum MoviesEndpoint: Endpoint {
     var queries: HTTPQueries {
         switch self {
         case .fetchTopRatedMovies(let page), .fetchPopularMovies(let page):
-            ["page": "\(page)"]
+            return ["page": "\(page)"]
         case .fetchMovieDetails:
-            ["append_to_response": "videos"]
+            return ["append_to_response": "videos"]
         case .searchMovie(let title):
-            ["query": "\(title)"]
+            return ["query": "\(title)"]
         case .fetchGenres:
-            [:]
+            return ["": ""]
         }
     }
     
     var headers: HTTPHeaders {
         switch self {
-        default: ["Content-Type": "application/json"]
+        default: return ["Content-Type": "application/json"]
         }
     }
 }
