@@ -186,7 +186,7 @@ private extension MoviesListSceneViewModel {
                 guard let self = self else {
                     return
                 }
-                self.movies.append(contentsOf: movies)
+                addMoviesIfNotExists(movies)
                 self.moviesCacheService.cacheMovies(movies: movies)
                 isLoadingSubject.send(false)
                 isRefreshing = false
@@ -218,7 +218,7 @@ private extension MoviesListSceneViewModel {
                 guard let self = self else {
                     return
                 }
-                self.movies.append(contentsOf: movies)
+                addMoviesIfNotExists(movies)
                 self.moviesCacheService.cacheMovies(movies: movies)
                 isLoadingSubject.send(false)
                 isRefreshing = false
@@ -370,6 +370,14 @@ private extension MoviesListSceneViewModel {
             errorSubject.send(NetworkError.noConnection as NSError)
             completion()
             return
+        }
+    }
+    
+    func addMoviesIfNotExists(_ newMovies: [Movie]) {
+        for newMovie in newMovies {
+            if !self.movies.contains(where: { $0.movieId == newMovie.movieId }) {
+                self.movies.append(newMovie)
+            }
         }
     }
 }
