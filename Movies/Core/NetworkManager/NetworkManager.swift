@@ -15,20 +15,34 @@ protocol Requestable: AnyObject {
 final class NetworkManager: Requestable {
     // MARK: - Properties
     let session: URLSession
+    private let networkConnectionObserver: NetworkConnectionObserver
+    @Published private var isInternetAvailable = true
+    private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Init
-    init(session: URLSession = .shared) {
+    init(session: URLSession = .shared,
+         networkConnectionObserver: NetworkConnectionObserver = NetworkConnectionObserverImpl.shared) {
         self.session = session
+        self.networkConnectionObserver = networkConnectionObserver
+        networkConnectionObserver.setupObserver()
+        checkCurrentInternetConnectionStatus()
     }
     
     // MARK: - Public methods
     func request(_ request: URLRequest) -> AnyPublisher<Data, NetworkError> {
+        debugPrint(isInternetAvailable)
+        guard isInternetAvailable else {
+            return Fail(error: NetworkError.noConnection)
+                .eraseToAnyPublisher()
+        }
+        
         return session
             .dataTaskPublisher(for: request)
             .mapError { [weak self] error -> NetworkError in
                 guard let self = self else {
                     return NetworkError.unexpectedError
                 }
+                
                 return convertError(error as NSError)
             }
             .flatMap { [weak self] output -> AnyPublisher<Data, NetworkError> in
@@ -36,7 +50,7 @@ final class NetworkManager: Requestable {
                     return Fail(error: NetworkError.unexpectedError)
                         .eraseToAnyPublisher()
                 }
-                //                Logger.log(output)
+                                Logger.log(output)
                 return self.handleError(output)
             }
             .eraseToAnyPublisher()
@@ -82,8 +96,24 @@ private extension NetworkManager {
             return .redirectError
         case NSURLErrorResourceUnavailable:
             return .resourceUnavailable
+        case NSURLErrorNotConnectedToInternet:
+            return .noConnection
+        case NSURLErrorNetworkConnectionLost:
+            return .noConnection
             
         default: return .unexpectedError
         }
+    }
+    
+    func checkCurrentInternetConnectionStatus() {
+        networkConnectionObserver.networkConnectionObserverPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isAvailable in
+                guard let self = self else {
+                    return
+                }
+                self.isInternetAvailable = isAvailable
+            }
+            .store(in: &cancellables)
     }
 }

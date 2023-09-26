@@ -41,7 +41,7 @@ private extension MainCoordinator {
                 }
             }
             .store(in: &cancellables)
-        setRoot([module.viewController])
+        push(module.viewController)
     }
     
     func openDetailScene(movie: MovieDetail) {

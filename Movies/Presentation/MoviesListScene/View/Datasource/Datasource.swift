@@ -30,6 +30,6 @@ struct MoviesListSceneCellModel: Hashable, Identifiable {
         self.poster = movie.poster
         self.movieTitle = movie.title
         self.movieReleaseDate = String(movie.releaseDate.prefix(4))
-        self.averageRate = String(movie.averageRating)
+        self.averageRate = String(format: "%.1f", movie.averageRating)
     }
 }

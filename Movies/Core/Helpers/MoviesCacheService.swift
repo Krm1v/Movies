@@ -32,7 +32,10 @@ final class MoviesCacheServiceImpl: MoviesCacheService {
     
     func getCachedMovies() -> [Movie?] {
         var cachedMovies: [Movie?] = []
-        for id in ids {
+        var uniqueIds: [NSString] = []
+        
+        for id in ids  where !uniqueIds.contains(id as NSString) {
+            uniqueIds.append(id as NSString)
             let object = cache.object(forKey: id as NSString)
             cachedMovies.append(object)
         }
