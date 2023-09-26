@@ -37,7 +37,7 @@
 		86B1CAB12ABE133600532EBF /* PosterDetailSceneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86B1CAB02ABE133600532EBF /* PosterDetailSceneView.swift */; };
 		86B1CAB52ABE134E00532EBF /* PosterDetailSceneViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86B1CAB42ABE134E00532EBF /* PosterDetailSceneViewController.swift */; };
 		86B1CAB82ABE136700532EBF /* PosterDetailSceneViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86B1CAB72ABE136700532EBF /* PosterDetailSceneViewModel.swift */; };
-		86D673372AC07D1000928B5F /* NetworkConnectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D673362AC07D1000928B5F /* NetworkConnectionManager.swift */; };
+		86D7E7B82AC23FF60031FE37 /* NetworkConnectionObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D7E7B72AC23FF60031FE37 /* NetworkConnectionObserver.swift */; };
 		86DEBB1E2ABDC92500ADF3A1 /* AxisScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86DEBB1D2ABDC92500ADF3A1 /* AxisScrollView.swift */; };
 		86DEBB202ABDCA6000ADF3A1 /* EdgeInsets+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86DEBB1F2ABDCA6000ADF3A1 /* EdgeInsets+Ext.swift */; };
 		86DEBB252ABDCB9C00ADF3A1 /* SwiftUICanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86DEBB242ABDCB9C00ADF3A1 /* SwiftUICanvas.swift */; };
@@ -118,7 +118,7 @@
 		86B1CAB02ABE133600532EBF /* PosterDetailSceneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PosterDetailSceneView.swift; sourceTree = "<group>"; };
 		86B1CAB42ABE134E00532EBF /* PosterDetailSceneViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PosterDetailSceneViewController.swift; sourceTree = "<group>"; };
 		86B1CAB72ABE136700532EBF /* PosterDetailSceneViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PosterDetailSceneViewModel.swift; sourceTree = "<group>"; };
-		86D673362AC07D1000928B5F /* NetworkConnectionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkConnectionManager.swift; sourceTree = "<group>"; };
+		86D7E7B72AC23FF60031FE37 /* NetworkConnectionObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkConnectionObserver.swift; sourceTree = "<group>"; };
 		86DEBB1D2ABDC92500ADF3A1 /* AxisScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AxisScrollView.swift; sourceTree = "<group>"; };
 		86DEBB1F2ABDCA6000ADF3A1 /* EdgeInsets+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EdgeInsets+Ext.swift"; sourceTree = "<group>"; };
 		86DEBB242ABDCB9C00ADF3A1 /* SwiftUICanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUICanvas.swift; sourceTree = "<group>"; };
@@ -618,7 +618,7 @@
 				86DF45E92ABB5F4C007CBB93 /* Endpoint.swift */,
 				86DF45EB2ABB62BF007CBB93 /* Logger.swift */,
 				860DE4AF2ABCBA62006D35B8 /* PosterBaseURL.swift */,
-				86D673362AC07D1000928B5F /* NetworkConnectionManager.swift */,
+				86D7E7B72AC23FF60031FE37 /* NetworkConnectionObserver.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -813,6 +813,7 @@
 				8603E2272ABB393A007C7AD9 /* AppCoordinator.swift in Sources */,
 				86B1CAA62ABDE87100532EBF /* UILabel+CommaSeparated.swift in Sources */,
 				86E6C7412ABDA861004DA717 /* MovieDetailViewController.swift in Sources */,
+				86D7E7B82AC23FF60031FE37 /* NetworkConnectionObserver.swift in Sources */,
 				86DF46332ABC4ABC007CBB93 /* MoviesEndpoint.swift in Sources */,
 				86E6C7442ABDA872004DA717 /* MovieDetailViewModel.swift in Sources */,
 				86DF45E42ABB5C7B007CBB93 /* NetworkError.swift in Sources */,
@@ -858,7 +859,6 @@
 				86B1CAA82ABDE89000532EBF /* UIImage+ResizeImage.swift in Sources */,
 				86DF46022ABB669B007CBB93 /* BaseView.swift in Sources */,
 				8603E2242ABB35E5007C7AD9 /* AppConfiguration.swift in Sources */,
-				86D673372AC07D1000928B5F /* NetworkConnectionManager.swift in Sources */,
 				8603E2212ABB356F007C7AD9 /* AppContainer.swift in Sources */,
 				86DF45EE2ABB62DC007CBB93 /* NetworkServiceProvider.swift in Sources */,
 				86DF45F92ABB63FD007CBB93 /* BaseViewModel.swift in Sources */,

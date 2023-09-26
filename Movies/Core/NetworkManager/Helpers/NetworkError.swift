@@ -35,6 +35,7 @@ enum NetworkError: Error {
     case resourceUnavailable
     case requestError(RequestBuilderError)
     case noResponse
+    case noConnection
 }
 
 extension NetworkError: LocalizedError {
@@ -51,6 +52,7 @@ extension NetworkError: LocalizedError {
         case .resourceUnavailable:      return Localization.resourceUnavailableErrorDesc
         case .requestError(let error):  return error.requestErrorDescription
         case .noResponse:               return Localization.noResponseErrorDesc
+        case .noConnection:             return Localization.noInternetConnectionErrorDesc
         }
     }
 }

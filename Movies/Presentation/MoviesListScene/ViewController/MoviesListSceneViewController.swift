@@ -27,6 +27,11 @@ final class MoviesListSceneViewController: BaseViewController<MoviesListSceneVie
         super.viewWillAppear(animated)
         setupNavBarButton()
     }
+    
+    // MARK: - Deinit
+    deinit {
+        cancellables.removeAll()
+    }
 }
 
 // MARK: - Private extension
